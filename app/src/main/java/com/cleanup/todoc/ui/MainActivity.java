@@ -166,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
                 // TODO: Replace this by id of persisted task
                 long id = (long) (Math.random() * 50000);
 
-                Task task = new Task(id, taskProject.getId(), taskName, new Date().getTime());
+                Task task = new Task(id, taskProject, taskName, new Date().getTime());
 
                 addTask(task);
 
