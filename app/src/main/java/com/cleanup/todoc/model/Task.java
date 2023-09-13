@@ -17,9 +17,9 @@ public class Task {
     private long id;
 
     /**
-     * The unique identifier of the project associated to the task
+     * The project associated to the task
      */
-    //private long projectId;
+    //private long projectId will be the secondary key for my entity;
     private Project project;
 
     /**
