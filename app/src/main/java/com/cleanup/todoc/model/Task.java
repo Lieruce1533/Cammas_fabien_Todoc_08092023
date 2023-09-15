@@ -3,6 +3,11 @@ package com.cleanup.todoc.model;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.room.Entity;
+import androidx.room.ForeignKey;
+import androidx.room.Ignore;
+import androidx.room.Index;
+import androidx.room.PrimaryKey;
 
 import java.util.Comparator;
 
@@ -10,18 +15,26 @@ import java.util.Comparator;
  * Model for the tasks of the application
  *
  */
+@Entity(tableName = "tasks",
+        foreignKeys = @ForeignKey(entity = Project.class,
+                parentColumns = "id",
+                childColumns = "projectId"),
+        indices = {@Index("projectId")}) // Create an index for projectId)
 public class Task {
     /**
      * The unique identifier of the task
      */
+    @PrimaryKey
     private long id;
 
     /**
      * The project associated to the task
      */
-    //private long projectId will be the secondary key for my entity;
+    @Ignore
     private Project project;
+    //private long projectId will be the secondary key for my entity;
 
+    private long projectId;
     /**
      * The name of the task
      */
@@ -43,6 +56,7 @@ public class Task {
      * @param name              the name of the task to set
      * @param creationTimestamp the timestamp when the task has been created to set
      */
+    @Ignore
     public Task(long id, Project project, @NonNull String name, long creationTimestamp) {
         this.setId(id);
         this.setProject(project);
@@ -56,6 +70,13 @@ public class Task {
 
     public void setProject(Project project) {
         this.project = project;
+    }
+
+    public Task(long id, long projectId, @NonNull String name, long creationTimestamp) {
+        this.id = id;
+        this.projectId = projectId;
+        this.name = name;
+        this.creationTimestamp = creationTimestamp;
     }
 
     /**
@@ -76,7 +97,23 @@ public class Task {
         this.id = id;
     }
 
+    /**
+     * Returns the unique identifier of the Project the task is attach to
+     *
+     * @return the unique identifier of the Project the task is attach to
+     */
+    public long getProjectId() {
+        return projectId;
+    }
 
+    /**
+     * Sets the unique identifier of the project the task is attach to
+     *
+     * @param projectId the unique identifier of the project
+     */
+    public void setProjectId(long projectId) {
+        this.projectId = projectId;
+    }
 
     /**
      * Returns the name of the task.
@@ -96,6 +133,15 @@ public class Task {
     private void setName(@NonNull String name) {
         this.name = name;
     }
+
+    /**
+     *
+     * @return the creationTimestamp of the task
+     */
+    public long getCreationTimestamp() {
+        return creationTimestamp;
+    }
+
 
     /**
      * Sets the timestamp when the task has been created.
