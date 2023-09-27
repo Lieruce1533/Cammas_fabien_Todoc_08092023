@@ -3,11 +3,14 @@ package com.cleanup.todoc.model;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.room.ColumnInfo;
+import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
+import androidx.room.Relation;
 
 import java.util.Comparator;
 
@@ -17,9 +20,9 @@ import java.util.Comparator;
  */
 @Entity(tableName = "tasks",
         foreignKeys = @ForeignKey(entity = Project.class,
-                parentColumns = "id",
-                childColumns = "projectId"),
-        indices = {@Index("projectId")}) // Create an index for projectId)
+                                    parentColumns = "id",
+                                    childColumns = "project_id"))
+
 public class Task {
     /**
      * The unique identifier of the task
@@ -27,15 +30,13 @@ public class Task {
     @PrimaryKey
     private long id;
 
-    /**
-     * The project associated to the task
-     */
+    @ColumnInfo(name = "project_id")
+    private long projectId; // This field is used as a foreign key
+
     @Ignore
     private Project project;
-    //private long projectId will be the secondary key for my entity;
 
-    private long projectId;
-    /**
+     /**
      * The name of the task
      */
     // Suppress warning because setName is called in constructor
@@ -46,38 +47,27 @@ public class Task {
     /**
      * The timestamp when the task has been created
      */
+    @ColumnInfo(name= "creation_time_stamp")
     private long creationTimestamp;
+
+    public Task() {
+    }
 
     /**
      * Instantiates a new Task.
      *
      * @param id                the unique identifier of the task to set
-     * @param project           the project associated to the task to set
      * @param name              the name of the task to set
      * @param creationTimestamp the timestamp when the task has been created to set
      */
-    @Ignore
-    public Task(long id, Project project, @NonNull String name, long creationTimestamp) {
+
+    public Task(long id, @NonNull String name, long creationTimestamp) {
         this.setId(id);
-        this.setProject(project);
         this.setName(name);
         this.setCreationTimestamp(creationTimestamp);
     }
 
-    public Project getProject() {
-        return project;
-    }
 
-    public void setProject(Project project) {
-        this.project = project;
-    }
-
-    public Task(long id, long projectId, @NonNull String name, long creationTimestamp) {
-        this.id = id;
-        this.projectId = projectId;
-        this.name = name;
-        this.creationTimestamp = creationTimestamp;
-    }
 
     /**
      * Returns the unique identifier of the task.
@@ -93,26 +83,21 @@ public class Task {
      *
      * @param id the unique identifier of the task to set
      */
-    private void setId(long id) {
+    public void setId(long id) {
         this.id = id;
     }
 
-    /**
-     * Returns the unique identifier of the Project the task is attach to
-     *
-     * @return the unique identifier of the Project the task is attach to
-     */
+
     public long getProjectId() {
         return projectId;
     }
 
-    /**
-     * Sets the unique identifier of the project the task is attach to
-     *
-     * @param projectId the unique identifier of the project
-     */
     public void setProjectId(long projectId) {
         this.projectId = projectId;
+    }
+
+    public Project getProjectWhitId(long projectId) {
+        return project;
     }
 
     /**
@@ -130,7 +115,7 @@ public class Task {
      *
      * @param name the name of the task to set
      */
-    private void setName(@NonNull String name) {
+    public void setName(@NonNull String name) {
         this.name = name;
     }
 
@@ -148,7 +133,7 @@ public class Task {
      *
      * @param creationTimestamp the timestamp when the task has been created to set
      */
-    private void setCreationTimestamp(long creationTimestamp) {
+    public void setCreationTimestamp(long creationTimestamp) {
         this.creationTimestamp = creationTimestamp;
     }
 

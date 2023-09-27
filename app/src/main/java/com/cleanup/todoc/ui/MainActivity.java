@@ -22,10 +22,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.cleanup.todoc.R;
 import com.cleanup.todoc.model.Project;
 import com.cleanup.todoc.model.Task;
+import com.cleanup.todoc.model.TaskProjectRelation;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 /**
  * <p>Home activity of the application which is displayed when the user opens the app.</p>
@@ -37,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
     /**
      * List of all projects available in the application
      */
-    private final Project[] allProjects = Project.getAllProjects();
+    private List<Project> allProjects;
 
     /**
      * List of all current tasks of the application
@@ -107,8 +109,14 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         mMainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
         mMainViewModel.getAllTasks().observe(this,tasks ->{
             adapter.updateTasks(tasks);
+        });
+        mMainViewModel.getAllProjects().observe(this,projects -> {
+            if (projects != null) {
+                allProjects = projects;
+            }
 
         });
+
 
         findViewById(R.id.fab_add_task).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -174,10 +182,11 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
             else if (taskProject != null) {
                 // TODO: Replace this by id of persisted task
                 long id = (long) (Math.random() * 50000);
-
-                Task task = new Task(id, taskProject, taskName, new Date().getTime());
-
-                addTask(task);
+                TaskProjectRelation taskProjectRelation = new TaskProjectRelation();
+                taskProjectRelation.project=taskProject;
+                Task task = new Task(id, taskName, new Date().getTime());
+                //task.projectRelation=taskProjectRelation;
+                mMainViewModel.insert(task);
 
                 dialogInterface.dismiss();
             }

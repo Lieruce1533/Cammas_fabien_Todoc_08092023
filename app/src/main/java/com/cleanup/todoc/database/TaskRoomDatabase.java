@@ -1,6 +1,7 @@
 package com.cleanup.todoc.database;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
@@ -13,7 +14,15 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.cleanup.todoc.model.Project;
 import com.cleanup.todoc.model.Task;
+import com.cleanup.todoc.model.TaskProjectRelation;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -28,7 +37,7 @@ public abstract class TaskRoomDatabase extends RoomDatabase {
     public abstract ProjectDao mProjectDao();
 
     private static volatile TaskRoomDatabase INSTANCE;
-    
+    private static Context appContext;
     private static final int NUMBER_OF_THREADS = 4;
     public static final ExecutorService databaseWriteExecutor =
             Executors.newFixedThreadPool(NUMBER_OF_THREADS);
@@ -36,7 +45,8 @@ public abstract class TaskRoomDatabase extends RoomDatabase {
         if (INSTANCE == null) {
             synchronized (TaskRoomDatabase.class) {
                 if (INSTANCE == null) {
-                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
+                    appContext = context.getApplicationContext();
+                    INSTANCE = Room.databaseBuilder(appContext,
                                     TaskRoomDatabase.class, "tasks")
                             .addCallback(sRoomDatabaseCallback)
                             .build();
@@ -55,17 +65,49 @@ public abstract class TaskRoomDatabase extends RoomDatabase {
             // comment out the following block
             databaseWriteExecutor.execute(() -> {
                 // Populate the database in the background.
-                // If you want to start with more words, just add them.
-                TaskDao tdao = INSTANCE.mTaskDao();
-                Task mtask = new Task(1,2,"test task",new Date().getTime());
-                tdao.insert(mtask);
                 ProjectDao pdao = INSTANCE.mProjectDao();
-                List<Project> projects = Arrays.asList(Project.getAllProjects());
+                List<Project> projects = readProjectsFromJson(appContext);
                 pdao.insertAll(projects);
+                TaskDao tdao = INSTANCE.mTaskDao();
+                TaskProjectRelation taskProjectRelation = new TaskProjectRelation();
+                taskProjectRelation.project = pdao.getProjectById(1);
+                //Task mtask = new Task();
+                //mtask.projectRelation = taskProjectRelation;
+                //mtask.setName("new Task");
+                //mtask.setCreationTimestamp(System.currentTimeMillis());
+                //tdao.insert(mtask);
 
             });
         }
     };
+
+    private static List<Project> readProjectsFromJson(Context context) {
+        List<Project> projects = new ArrayList<>();
+
+        try {
+            InputStream inputStream = context.getAssets().open("projects.json");
+            int size = inputStream.available();
+            byte[] buffer = new byte[size];
+            inputStream.read(buffer);
+            inputStream.close();
+
+            String json = new String(buffer, "UTF-8");
+
+            // Parse the JSON array into Project objects
+            JSONArray jsonArray = new JSONArray(json);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                long id = jsonObject.getLong("id");
+                String name = jsonObject.getString("name");
+                int color = jsonObject.getInt("color");
+                projects.add(new Project(id, name, color));
+            }
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+        }
+
+        return projects;
+    }
 
 
 
