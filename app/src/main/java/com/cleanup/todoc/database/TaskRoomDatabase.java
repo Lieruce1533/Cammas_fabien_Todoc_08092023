@@ -1,20 +1,18 @@
 package com.cleanup.todoc.database;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
-import androidx.room.migration.Migration;
+import androidx.room.TypeConverters;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.cleanup.todoc.model.Project;
+import com.cleanup.todoc.model.ProjectConverter;
 import com.cleanup.todoc.model.Task;
-import com.cleanup.todoc.model.TaskProjectRelation;
+import com.cleanup.todoc.model.ProjectWithTaskRelation;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,19 +21,16 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Database(entities = {Task.class, Project.class}, version = 1, exportSchema = false)
-
+@TypeConverters(ProjectConverter.class)
 public abstract class TaskRoomDatabase extends RoomDatabase {
 
     public abstract TaskDao mTaskDao();
     public abstract ProjectDao mProjectDao();
-
     private static volatile TaskRoomDatabase INSTANCE;
     private static Context appContext;
     private static final int NUMBER_OF_THREADS = 4;
@@ -65,17 +60,15 @@ public abstract class TaskRoomDatabase extends RoomDatabase {
             // comment out the following block
             databaseWriteExecutor.execute(() -> {
                 // Populate the database in the background.
-                ProjectDao pdao = INSTANCE.mProjectDao();
+                ProjectDao pDao = INSTANCE.mProjectDao();
                 List<Project> projects = readProjectsFromJson(appContext);
-                pdao.insertAll(projects);
-                TaskDao tdao = INSTANCE.mTaskDao();
-                TaskProjectRelation taskProjectRelation = new TaskProjectRelation();
-                taskProjectRelation.project = pdao.getProjectById(1);
-                //Task mtask = new Task();
-                //mtask.projectRelation = taskProjectRelation;
-                //mtask.setName("new Task");
-                //mtask.setCreationTimestamp(System.currentTimeMillis());
-                //tdao.insert(mtask);
+                pDao.insertAll(projects);
+                TaskDao tDao = INSTANCE.mTaskDao();
+                Task mtask = new Task();
+                mtask.setProject(pDao.getProjectById(1));
+                mtask.setName("new Task");
+                mtask.setCreationTimestamp(System.currentTimeMillis());
+                tDao.insert(mtask);
 
             });
         }

@@ -22,7 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.cleanup.todoc.R;
 import com.cleanup.todoc.model.Project;
 import com.cleanup.todoc.model.Task;
-import com.cleanup.todoc.model.TaskProjectRelation;
+import com.cleanup.todoc.model.ProjectWithTaskRelation;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
      * List of all current tasks of the application
      */
     @NonNull
-    private final ArrayList<Task> tasks = new ArrayList<>();
+    private List<Task> tasks = new ArrayList<>();
 
     /**
      * The adapter which handles the list of tasks
@@ -97,8 +97,6 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
         setContentView(R.layout.activity_main);
 
         listTasks = findViewById(R.id.list_tasks);
@@ -108,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         listTasks.setAdapter(adapter);
         mMainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
         mMainViewModel.getAllTasks().observe(this,tasks ->{
+            this.tasks= tasks;
             adapter.updateTasks(tasks);
         });
         mMainViewModel.getAllProjects().observe(this,projects -> {
@@ -153,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
 
     @Override
     public void onDeleteTask(Task task) {
-        tasks.remove(task);
+        mMainViewModel.delete(task);
         updateTasks();
     }
 
@@ -182,12 +181,8 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
             else if (taskProject != null) {
                 // TODO: Replace this by id of persisted task
                 long id = (long) (Math.random() * 50000);
-                TaskProjectRelation taskProjectRelation = new TaskProjectRelation();
-                taskProjectRelation.project=taskProject;
-                Task task = new Task(id, taskName, new Date().getTime());
-                //task.projectRelation=taskProjectRelation;
+                Task task = new Task(taskProject,taskName, new Date().getTime());
                 mMainViewModel.insert(task);
-
                 dialogInterface.dismiss();
             }
             // If name has been set, but project has not been set (this should never occur)
@@ -213,16 +208,6 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         dialogSpinner = dialog.findViewById(R.id.project_spinner);
 
         populateDialogSpinner();
-    }
-
-    /**
-     * Adds the given task to the list of created tasks.
-     *
-     * @param task the task to be added to the list
-     */
-    private void addTask(@NonNull Task task) {
-        tasks.add(task);
-        updateTasks();
     }
 
     /**

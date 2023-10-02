@@ -18,6 +18,7 @@ public class MainViewModel extends AndroidViewModel {
     private final LiveData<List<Task>> mAllTasks;
     private final LiveData<List<Project>> mAllProjects;
 
+
     public MainViewModel(@NonNull Application application) {
         super(application);
         mTodocRepository = TodocRepository.getInstance(application);
@@ -31,5 +32,9 @@ public class MainViewModel extends AndroidViewModel {
 
     public void insert(Task task) { mTodocRepository.insert(task);}
     public void delete(Task task) { mTodocRepository.delete(task);}
+
+    public Project getProjectFromId(long projectId) {
+        return mTodocRepository.getProjectById(projectId);
+    }
 
 }

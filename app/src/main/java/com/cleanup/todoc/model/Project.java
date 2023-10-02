@@ -45,6 +45,10 @@ public class Project {
         this.name = name;
         this.color = color;
     }
+
+    public Project() {
+    }
+
     /**
      * Returns the unique identifier of the project.
      *
@@ -96,5 +100,19 @@ public class Project {
     @NonNull
     public String toString() {
         return getName();
+    }
+
+    /**
+     * Returns all the projects of the application.
+     *
+     * @return all the projects of the application
+     */
+    @NonNull
+    public static Project[] getAllProjects() {
+        return new Project[]{
+                new Project(1L, "Projet Tartampion", 0xFFEADAD1),
+                new Project(2L, "Projet Lucidia", 0xFFB4CDBA),
+                new Project(3L, "Projet Circus", 0xFFA3CED2),
+        };
     }
 }

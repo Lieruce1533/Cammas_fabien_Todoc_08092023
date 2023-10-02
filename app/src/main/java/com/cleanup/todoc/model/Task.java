@@ -11,6 +11,7 @@ import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import androidx.room.Relation;
+import androidx.room.TypeConverters;
 
 import java.util.Comparator;
 
@@ -23,25 +24,29 @@ import java.util.Comparator;
                                     parentColumns = "id",
                                     childColumns = "project_id"))
 
+@TypeConverters(ProjectConverter.class) // Use ProjectConverter for type conversion
 public class Task {
     /**
      * The unique identifier of the task
      */
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "task_id")
     private long id;
 
-    @ColumnInfo(name = "project_id")
-    private long projectId; // This field is used as a foreign key
 
     @Ignore
+    private long projectId; // This field is used as a foreign key
+
+    @ColumnInfo(name = "project_id")
     private Project project;
 
      /**
      * The name of the task
      */
     // Suppress warning because setName is called in constructor
-    @SuppressWarnings("NullableProblems")
+    //@SuppressWarnings("NullableProblems")
     @NonNull
+    @ColumnInfo (name = "task_name")
     private String name;
 
     /**
@@ -56,13 +61,13 @@ public class Task {
     /**
      * Instantiates a new Task.
      *
-     * @param id                the unique identifier of the task to set
+
      * @param name              the name of the task to set
      * @param creationTimestamp the timestamp when the task has been created to set
      */
 
-    public Task(long id, @NonNull String name, long creationTimestamp) {
-        this.setId(id);
+    public Task(Project project, @NonNull String name, long creationTimestamp) {
+        this.setProject(project);
         this.setName(name);
         this.setCreationTimestamp(creationTimestamp);
     }
@@ -96,11 +101,8 @@ public class Task {
         this.projectId = projectId;
     }
 
-    public Project getProjectWhitId(long projectId) {
-        return project;
-    }
 
-    /**
+     /**
      * Returns the name of the task.
      *
      * @return the name of the task
@@ -137,9 +139,23 @@ public class Task {
         this.creationTimestamp = creationTimestamp;
     }
 
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
+
+    }
+
+
+
+
+
+// fonctions de tri à réimplémenter
     /**
      * Comparator to sort task from A to Z
-     */
+    */
     public static class TaskAZComparator implements Comparator<Task> {
         @Override
         public int compare(Task left, Task right) {
@@ -149,7 +165,7 @@ public class Task {
 
     /**
      * Comparator to sort task from Z to A
-     */
+    */
     public static class TaskZAComparator implements Comparator<Task> {
         @Override
         public int compare(Task left, Task right) {
@@ -159,7 +175,7 @@ public class Task {
 
     /**
      * Comparator to sort task from last created to first created
-     */
+    */
     public static class TaskRecentComparator implements Comparator<Task> {
         @Override
         public int compare(Task left, Task right) {
@@ -169,7 +185,7 @@ public class Task {
 
     /**
      * Comparator to sort task from first created to last created
-     */
+    */
     public static class TaskOldComparator implements Comparator<Task> {
         @Override
         public int compare(Task left, Task right) {
