@@ -23,6 +23,10 @@ public class TodocRepository {
     private ProjectDao mProjectDao;
     private final TaskRoomDatabase mTaskRoomDatabase;
     private LiveData<List<Task>> mAllTasks;
+    private LiveData<List<Task>> mAllTasksAsc;
+    private LiveData<List<Task>> mAllTasksDesc;
+    private LiveData<List<Task>> mAllTasksSortedByTimeStampDesc;
+    private LiveData<List<Task>> mAllTasksSortedByTimeStampAsc;
     private LiveData<List<Project>> mAllProjects;
     private Project project;
 
@@ -33,6 +37,10 @@ public class TodocRepository {
         mTaskDao = mTaskRoomDatabase.mTaskDao();
         mProjectDao = mTaskRoomDatabase.mProjectDao();
         mAllTasks = mTaskDao.getAllTasks();
+        mAllTasksAsc = mTaskDao.getAllTasksSortedByNameAsc();
+        mAllTasksDesc = mTaskDao.getAllTasksSortedByNameDesc();
+        mAllTasksSortedByTimeStampDesc = mTaskDao.getAllTasksSortedByCreationTimestampDesc();
+        mAllTasksSortedByTimeStampAsc = mTaskDao.getAllTasksSortedByCreationTimestampAsc();
         mAllProjects = mProjectDao.getAllLiveProjects();
 
     }
@@ -66,6 +74,21 @@ public class TodocRepository {
     public LiveData<List<Task>> getAllTasks(){
         return mAllTasks;
     }
+
+
+    public LiveData<List<Task>> getAllTasksSortedByCreationTimestampDesc(){
+        return mAllTasksSortedByTimeStampDesc;
+    }
+    public LiveData<List<Task>> getAllTasksSortedByCreationTimestampAsc(){
+        return mAllTasksSortedByTimeStampAsc;
+    }
+    public LiveData<List<Task>> getAllTasksSortedByNameAsc(){
+        return mAllTasksAsc;
+    }
+    public LiveData<List<Task>> getAllTasksSortedByNameDesc(){
+        return mAllTasksDesc;
+    }
+
 
     /**
      * Projects methods
