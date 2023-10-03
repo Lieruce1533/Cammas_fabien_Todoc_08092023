@@ -1,5 +1,10 @@
 package com.cleanup.todoc.ui;
 
+import static com.cleanup.todoc.ui.MainViewModel.SortingPreference.CREATION_TIMESTAMP_ASC;
+import static com.cleanup.todoc.ui.MainViewModel.SortingPreference.CREATION_TIMESTAMP_DESC;
+import static com.cleanup.todoc.ui.MainViewModel.SortingPreference.NAME_ASC;
+import static com.cleanup.todoc.ui.MainViewModel.SortingPreference.NAME_DESC;
+
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.Menu;
@@ -30,10 +35,10 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * <p>Home activity of the application which is displayed when the user opens the app.</p>
- * <p>Displays the list of tasks.</p>
+ * Home activity of the application which is displayed when the user opens the app.
+ * Displays the list of tasks.
  *
- * @author Gaëtan HERFRAY
+ *
  */
 public class MainActivity extends AppCompatActivity implements TasksAdapter.DeleteTaskListener {
     /**
@@ -93,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
     private TextView lblNoTasks;
 
     private MainViewModel mMainViewModel;
+    private MainViewModel.SortingPreference mSortingPreference;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -105,9 +111,10 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         listTasks.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         listTasks.setAdapter(adapter);
         mMainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
-        mMainViewModel.getAllTasks().observe(this,tasks ->{
+        mMainViewModel.getAggregatedTasks().observe(this,tasks ->{
             this.tasks= tasks;
             adapter.updateTasks(tasks);
+            showTasks();
         });
         mMainViewModel.getAllProjects().observe(this,projects -> {
             if (projects != null) {
@@ -115,8 +122,6 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
             }
 
         });
-
-
         findViewById(R.id.fab_add_task).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -125,6 +130,15 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         });
     }
 
+    private void handleSortingPreference(MainViewModel.SortingPreference preference) {
+        MainViewModel.setSortingPreference(preference); // Call the ViewModel method to update the sorting preference
+    }
+
+    /**
+     * Sets the sorting preference
+     * @param menu The options menu in which you place your items.
+     *
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.actions, menu);
@@ -136,24 +150,30 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         int id = item.getItemId();
 
         if (id == R.id.filter_alphabetical) {
-            sortMethod = SortMethod.ALPHABETICAL;
+            handleSortingPreference(NAME_ASC);
         } else if (id == R.id.filter_alphabetical_inverted) {
-            sortMethod = SortMethod.ALPHABETICAL_INVERTED;
+            handleSortingPreference(NAME_DESC);
         } else if (id == R.id.filter_oldest_first) {
-            sortMethod = SortMethod.OLD_FIRST;
+            handleSortingPreference(CREATION_TIMESTAMP_ASC);
         } else if (id == R.id.filter_recent_first) {
-            sortMethod = SortMethod.RECENT_FIRST;
+            handleSortingPreference(CREATION_TIMESTAMP_DESC);
         }
 
-        updateTasks();
+        showTasks();
 
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Deletes the specified task from the list of tasks
+     * @param task The task to be deleted
+     * Updates the list of tasks
+     */
+
     @Override
     public void onDeleteTask(Task task) {
         mMainViewModel.delete(task);
-        updateTasks();
+        showTasks();
     }
 
     /**
@@ -179,10 +199,9 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
             }
             // If both project and name of the task have been set
             else if (taskProject != null) {
-                // TODO: Replace this by id of persisted task
-                long id = (long) (Math.random() * 50000);
                 Task task = new Task(taskProject,taskName, new Date().getTime());
                 mMainViewModel.insert(task);
+                showTasks();
                 dialogInterface.dismiss();
             }
             // If name has been set, but project has not been set (this should never occur)
@@ -201,41 +220,22 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
      */
     private void showAddTaskDialog() {
         final AlertDialog dialog = getAddTaskDialog();
-
         dialog.show();
-
         dialogEditText = dialog.findViewById(R.id.txt_task_name);
         dialogSpinner = dialog.findViewById(R.id.project_spinner);
-
         populateDialogSpinner();
     }
 
     /**
-     * Updates the list of tasks in the UI
+     * Updates view of the list of tasks in the UI
      */
-    private void updateTasks() {
+    private void showTasks() {
         if (tasks.size() == 0) {
             lblNoTasks.setVisibility(View.VISIBLE);
             listTasks.setVisibility(View.GONE);
         } else {
             lblNoTasks.setVisibility(View.GONE);
             listTasks.setVisibility(View.VISIBLE);
-            switch (sortMethod) {
-                case ALPHABETICAL:
-                    Collections.sort(tasks, new Task.TaskAZComparator());
-                    break;
-                case ALPHABETICAL_INVERTED:
-                    Collections.sort(tasks, new Task.TaskZAComparator());
-                    break;
-                case RECENT_FIRST:
-                    Collections.sort(tasks, new Task.TaskRecentComparator());
-                    break;
-                case OLD_FIRST:
-                    Collections.sort(tasks, new Task.TaskOldComparator());
-                    break;
-
-            }
-            adapter.updateTasks(tasks);
         }
     }
 

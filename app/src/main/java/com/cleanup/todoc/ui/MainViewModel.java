@@ -16,14 +16,14 @@ import java.util.List;
 public class MainViewModel extends AndroidViewModel {
 
     private TodocRepository mTodocRepository;
-    private final LiveData<List<Task>> mAllTasks;
-    private final LiveData<List<Task>> mAllTasksSortedByTimeStampDesc;
-    private final LiveData<List<Task>> mAllTasksSortedByTimeStampAsc;
-    private final LiveData<List<Task>> mAllTasksSortedByNameAsc;
-    private final LiveData<List<Task>> mAllTasksSortedByNameDesc;
+    private static  LiveData<List<Task>> mAllTasks;
+    private static  LiveData<List<Task>> mAllTasksSortedByTimeStampDesc;
+    private static  LiveData<List<Task>> mAllTasksSortedByTimeStampAsc;
+    private static  LiveData<List<Task>> mAllTasksSortedByNameAsc;
+    private static  LiveData<List<Task>> mAllTasksSortedByNameDesc;
 
     // MediatorLiveData to aggregate the sorted tasks
-    private MediatorLiveData<List<Task>> aggregatedTasks = new MediatorLiveData<>();
+    private static MediatorLiveData<List<Task>> aggregatedTasks = new MediatorLiveData<>();
     private final LiveData<List<Project>> mAllProjects;
 
     // Enum for sorting preferences
@@ -52,7 +52,7 @@ public class MainViewModel extends AndroidViewModel {
         setSortingPreference(SortingPreference.ALL_TASKS);
     }
 
-    public void setSortingPreference(SortingPreference sortingPreference) {
+    public static void setSortingPreference(SortingPreference sortingPreference) {
         switch (sortingPreference) {
             case CREATION_TIMESTAMP_DESC:
                 aggregatedTasks.addSource(mAllTasksSortedByTimeStampDesc, tasks -> aggregatedTasks.setValue(tasks));
@@ -77,7 +77,7 @@ public class MainViewModel extends AndroidViewModel {
         return aggregatedTasks;
     }
 
-    LiveData<List<Task>> getAllTasks(){ return mAllTasks;}
+    //LiveData<List<Task>> getAllTasks(){ return mAllTasks;}
 
     LiveData<List<Project>> getAllProjects() { return mAllProjects;}
 
