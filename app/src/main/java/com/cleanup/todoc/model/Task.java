@@ -67,9 +67,9 @@ public class Task {
      */
 
     public Task(Project project, @NonNull String name, long creationTimestamp) {
-        this.setProject(project);
-        this.setName(name);
-        this.setCreationTimestamp(creationTimestamp);
+        this.project = project;
+        this.name = name;
+        this.creationTimestamp = creationTimestamp;
     }
 
 

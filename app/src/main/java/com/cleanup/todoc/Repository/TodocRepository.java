@@ -19,16 +19,11 @@ public class TodocRepository {
     // Singleton instance
     private static TodocRepository sInstance;
 
-    private TaskDao mTaskDao;
-    private ProjectDao mProjectDao;
+    private final TaskDao mTaskDao;
+    private final ProjectDao mProjectDao;
     private final TaskRoomDatabase mTaskRoomDatabase;
-    private LiveData<List<Task>> mAllTasks;
-    private LiveData<List<Task>> mAllTasksAsc;
-    private LiveData<List<Task>> mAllTasksDesc;
-    private LiveData<List<Task>> mAllTasksSortedByTimeStampDesc;
-    private LiveData<List<Task>> mAllTasksSortedByTimeStampAsc;
-    private LiveData<List<Project>> mAllProjects;
-    private Project project;
+    private final LiveData<List<Project>> mAllProjects;
+
 
 
     public TodocRepository(Application application) {
@@ -36,16 +31,12 @@ public class TodocRepository {
         mTaskRoomDatabase = TaskRoomDatabase.getDatabase(application.getApplicationContext());
         mTaskDao = mTaskRoomDatabase.mTaskDao();
         mProjectDao = mTaskRoomDatabase.mProjectDao();
-        mAllTasks = mTaskDao.getAllTasks();
-        mAllTasksAsc = mTaskDao.getAllTasksSortedByNameAsc();
-        mAllTasksDesc = mTaskDao.getAllTasksSortedByNameDesc();
-        mAllTasksSortedByTimeStampDesc = mTaskDao.getAllTasksSortedByCreationTimestampDesc();
-        mAllTasksSortedByTimeStampAsc = mTaskDao.getAllTasksSortedByCreationTimestampAsc();
         mAllProjects = mProjectDao.getAllLiveProjects();
-
     }
 
-    // Create and return the Singleton instance
+    /**
+     * Create and return the Singleton instance
+     */
     public static TodocRepository getInstance(Application application) {
         if (sInstance == null) {
             synchronized (TodocRepository.class) {
@@ -58,42 +49,51 @@ public class TodocRepository {
     }
 
     /**
-     * Tasks methods
+     * Task method Insertion
      * @param task
      */
     public void insert(Task task){
-        mTaskRoomDatabase.databaseWriteExecutor.execute(() -> {
+        TaskRoomDatabase.databaseWriteExecutor.execute(() -> {
             mTaskDao.insert(task);
         } );
     }
+
+    /**
+     * Task method deletion
+     * @param task
+     */
+
     public void delete(Task task){
-        mTaskRoomDatabase.databaseWriteExecutor.execute(() -> {
+        TaskRoomDatabase.databaseWriteExecutor.execute(() -> {
             mTaskDao.deleteTaskInTable(task);
         } );
     }
+
+    /**
+     * Live data's before preferences
+     *
+     */
     public LiveData<List<Task>> getAllTasks(){
-        return mAllTasks;
+        return mTaskDao.getAllTasks();
     }
-
-
     public LiveData<List<Task>> getAllTasksSortedByCreationTimestampDesc(){
-        return mAllTasksSortedByTimeStampDesc;
+        return mTaskDao.getAllTasksSortedByCreationTimestampDesc();
     }
     public LiveData<List<Task>> getAllTasksSortedByCreationTimestampAsc(){
-        return mAllTasksSortedByTimeStampAsc;
+        return mTaskDao.getAllTasksSortedByCreationTimestampAsc();
     }
-    public LiveData<List<Task>> getAllTasksSortedByNameAsc(){
-        return mAllTasksAsc;
+    public LiveData<List<Task>> getTasksOrderedByProjectName(){
+        return mTaskDao.getTasksOrderedByProjectName();
     }
-    public LiveData<List<Task>> getAllTasksSortedByNameDesc(){
-        return mAllTasksDesc;
+    public LiveData<List<Task>> getTasksOrderedByProjectNameDesc(){
+        return mTaskDao.getTasksOrderedByProjectNameDesc();
     }
 
 
     /**
      * Projects methods
      * @return
-     */
+
 
     public Project getProjectById(Long projectId){
        mTaskRoomDatabase.databaseWriteExecutor.execute(() -> {
@@ -101,6 +101,7 @@ public class TodocRepository {
         } );
         return project;
     }
+     */
     public LiveData<List<Project>> getAllProjects() {
         return mAllProjects;
     }

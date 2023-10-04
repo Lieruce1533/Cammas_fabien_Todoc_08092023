@@ -35,6 +35,10 @@ public interface TaskDao {
     @Query("SELECT * FROM tasks ORDER BY task_name DESC")
     LiveData<List<Task>> getAllTasksSortedByNameDesc();
 
+    @Query("SELECT tasks.* FROM tasks INNER JOIN projects ON tasks.project_id = projects.id ORDER BY projects.name ASC")
+    LiveData<List<Task>> getTasksOrderedByProjectName();
+    @Query("SELECT tasks.* FROM tasks INNER JOIN projects ON tasks.project_id = projects.id ORDER BY projects.name DESC")
+    LiveData<List<Task>> getTasksOrderedByProjectNameDesc();
 
 
     //sorting Tasks possible here

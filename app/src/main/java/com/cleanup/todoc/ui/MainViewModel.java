@@ -44,8 +44,8 @@ public class MainViewModel extends AndroidViewModel {
         mAllTasks = mTodocRepository.getAllTasks();
         mAllTasksSortedByTimeStampDesc = mTodocRepository.getAllTasksSortedByCreationTimestampDesc();
         mAllTasksSortedByTimeStampAsc = mTodocRepository.getAllTasksSortedByCreationTimestampAsc();
-        mAllTasksSortedByNameAsc = mTodocRepository.getAllTasksSortedByNameAsc();
-        mAllTasksSortedByNameDesc = mTodocRepository.getAllTasksSortedByNameDesc();
+        mAllTasksSortedByNameAsc = mTodocRepository.getTasksOrderedByProjectName();
+        mAllTasksSortedByNameDesc = mTodocRepository.getTasksOrderedByProjectNameDesc();
         mAllProjects = mTodocRepository.getAllProjects();
 
         // Set the initial source for aggregatedTasks (default sorting option)
@@ -77,15 +77,11 @@ public class MainViewModel extends AndroidViewModel {
         return aggregatedTasks;
     }
 
-    //LiveData<List<Task>> getAllTasks(){ return mAllTasks;}
-
     LiveData<List<Project>> getAllProjects() { return mAllProjects;}
 
     public void insert(Task task) { mTodocRepository.insert(task);}
     public void delete(Task task) { mTodocRepository.delete(task);}
 
-    public Project getProjectFromId(long projectId) {
-        return mTodocRepository.getProjectById(projectId);
-    }
+
 
 }
