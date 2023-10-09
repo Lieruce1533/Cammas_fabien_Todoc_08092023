@@ -16,30 +16,27 @@ import java.util.List;
 @Dao
 public interface TaskDao {
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(Task task);
     @Delete(entity = Task.class)
     void deleteTaskInTable(Task task);
 
-    @Query("SELECT * FROM tasks")
+    /**
+     * sorting Tasks here
+     *
+     */
+
+    @Query("SELECT * FROM tasks_table")
     LiveData<List<Task>> getAllTasks();
-
-    @Query("SELECT * FROM tasks WHERE project_id = :projectId")
-    LiveData<List<Task>> getTasksByProject(int projectId);
-    @Query("SELECT * FROM tasks ORDER BY creation_time_stamp DESC")
+    @Query("SELECT * FROM tasks_table ORDER BY creation_time_stamp DESC")
     LiveData<List<Task>> getAllTasksSortedByCreationTimestampDesc();
-    @Query("SELECT * FROM tasks ORDER BY creation_time_stamp ASC")
+    @Query("SELECT * FROM tasks_table ORDER BY creation_time_stamp ASC")
     LiveData<List<Task>> getAllTasksSortedByCreationTimestampAsc();
-    @Query("SELECT * FROM tasks ORDER BY task_name ASC")
-    LiveData<List<Task>> getAllTasksSortedByNameAsc();
-    @Query("SELECT * FROM tasks ORDER BY task_name DESC")
-    LiveData<List<Task>> getAllTasksSortedByNameDesc();
-
-    @Query("SELECT tasks.* FROM tasks INNER JOIN projects ON tasks.project_id = projects.id ORDER BY projects.name ASC")
+    @Query("SELECT tasks_table.* FROM tasks_table INNER JOIN projects ON tasks_table.project_id = projects.id ORDER BY projects.name ASC")
     LiveData<List<Task>> getTasksOrderedByProjectName();
-    @Query("SELECT tasks.* FROM tasks INNER JOIN projects ON tasks.project_id = projects.id ORDER BY projects.name DESC")
+    @Query("SELECT tasks_table.* FROM tasks_table INNER JOIN projects ON tasks_table.project_id = projects.id ORDER BY projects.name DESC")
     LiveData<List<Task>> getTasksOrderedByProjectNameDesc();
 
 
-    //sorting Tasks possible here
+
 }

@@ -42,7 +42,7 @@ public abstract class TaskRoomDatabase extends RoomDatabase {
                 if (INSTANCE == null) {
                     appContext = context.getApplicationContext();
                     INSTANCE = Room.databaseBuilder(appContext,
-                                    TaskRoomDatabase.class, "tasks")
+                                    TaskRoomDatabase.class, "tasks_table")
                             .addCallback(sRoomDatabaseCallback)
                             .build();
                     }
@@ -51,7 +51,7 @@ public abstract class TaskRoomDatabase extends RoomDatabase {
         return INSTANCE;
     }
 
-    private static RoomDatabase.Callback sRoomDatabaseCallback = new RoomDatabase.Callback() {
+    private static final RoomDatabase.Callback sRoomDatabaseCallback = new RoomDatabase.Callback() {
         @Override
         public void onCreate(@NonNull SupportSQLiteDatabase db) {
             super.onCreate(db);
@@ -66,10 +66,9 @@ public abstract class TaskRoomDatabase extends RoomDatabase {
                 TaskDao tDao = INSTANCE.mTaskDao();
                 Task mtask = new Task();
                 mtask.setProject(pDao.getProjectById(1));
-                mtask.setName("new Task");
+                mtask.setName("first Task");
                 mtask.setCreationTimestamp(System.currentTimeMillis());
                 tDao.insert(mtask);
-
             });
         }
     };
@@ -98,10 +97,6 @@ public abstract class TaskRoomDatabase extends RoomDatabase {
         } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
-
         return projects;
     }
-
-
-
 }

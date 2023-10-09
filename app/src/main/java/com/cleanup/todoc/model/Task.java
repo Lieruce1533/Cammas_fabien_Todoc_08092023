@@ -19,7 +19,7 @@ import java.util.Comparator;
  * Model for the tasks of the application
  *
  */
-@Entity(tableName = "tasks",
+@Entity(tableName = "tasks_table",
         foreignKeys = @ForeignKey(entity = Project.class,
                                     parentColumns = "id",
                                     childColumns = "project_id"))

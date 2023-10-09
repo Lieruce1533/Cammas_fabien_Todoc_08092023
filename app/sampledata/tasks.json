@@ -1,29 +1,38 @@
-{
-  "data": [
+[
+  {
     {
-      "backgroundTint": "#EADAD1",
-      "taskName": "Ajouter un header sur le site",
-      "projectName": "Projet Tartampion"
+      "id": "1",
+      "projectName": "Projet Tartampion",
+      "color": 16775185
     },
+    "name": "Ajouter un header sur le site",
+    "creationTimestamp": "1696246201274",
+  },
+  {
     {
-      "backgroundTint": "#B4CDBA",
-      "taskName": "Modifier la couleur des textes",
-      "projectName": "Projet Lucidia"
+      "id": 2,
+      "name": "Projet Lucidia",
+      "color": 16448122
     },
+  },
     {
-      "backgroundTint": "#B4CDBA",
-      "taskName": "Appeler le client",
-      "projectName": "Projet Lucidia"
+      "id": 2,
+      "name": "Projet Lucidia",
+      "color": 16448122
     },
+  {
     {
-      "backgroundTint": "#EADAD1",
-      "taskName": "Intégrer Google Analytics",
-      "projectName": "Projet Tartampion"
+      "id": "1",
+      "projectName": "Projet Tartampion",
+      "color": 16775185
     },
+  },
+  {
     {
-      "backgroundTint": "#A3CED2",
-      "taskName": "Ajouter un header sur le site",
-      "projectName": "Projet Circus"
+      "id": 3,
+      "name": "Projet Circus",
+      "color": 10798354
     }
-  ]
-}
+  }
+]
+

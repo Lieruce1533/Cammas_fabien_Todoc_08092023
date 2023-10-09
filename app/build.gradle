@@ -19,7 +19,8 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    lintOptions {
+    namespace 'com.cleanup.todoc'
+    lint {
         disable 'RestrictedApi'
     }
 }
@@ -49,9 +50,13 @@ dependencies {
 
 
     testImplementation 'junit:junit:4.13.2'
+    testImplementation 'androidx.room:room-testing:2.5.2'
+    testImplementation 'androidx.test:runner:1.5.2'
+    testImplementation 'androidx.test:rules:1.5.0'
+    androidTestImplementation 'androidx.room:room-testing:2.5.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     androidTestImplementation 'androidx.test:runner:1.5.2'
     androidTestImplementation 'androidx.test:rules:1.5.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
 }
 //error : duplicate class kotlin blablabla.
