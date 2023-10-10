@@ -93,14 +93,6 @@ public class TodocRepository {
     /**
      * Projects methods
      * @return
-
-
-    public Project getProjectById(Long projectId){
-       mTaskRoomDatabase.databaseWriteExecutor.execute(() -> {
-            mProjectDao.getProjectById(projectId);
-        } );
-        return project;
-    }
      */
     public LiveData<List<Project>> getAllProjects() {
         return mAllProjects;
