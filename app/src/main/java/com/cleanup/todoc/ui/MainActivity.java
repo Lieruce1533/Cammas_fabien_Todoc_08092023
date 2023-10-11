@@ -6,6 +6,7 @@ package com.cleanup.todoc.ui;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,6 +27,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cleanup.todoc.R;
+import com.cleanup.todoc.Repository.TodocRepository;
 import com.cleanup.todoc.model.Project;
 import com.cleanup.todoc.model.Task;
 
@@ -50,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
      * List of all current tasks of the application
      */
     @NonNull
-    private List<Task> tasks = new ArrayList<>();
+    private final List<Task> tasks = new ArrayList<>();
     /**
      * The adapter which handles the list of tasks
      */
@@ -96,10 +98,16 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         lblNoTasks = findViewById(R.id.lbl_no_task);
         listTasks.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         listTasks.setAdapter(adapter);
-        mMainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        TodocRepository repository = TodocRepository.getInstance(this.getApplication());
+        MainViewModelFactory factory = new MainViewModelFactory(repository);
+        mMainViewModel = new ViewModelProvider(this, factory).get(MainViewModel.class);
+        //mMainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        mMainViewModel.handleSortingPreference("All tasks");
+
         mMainViewModel.getFilteredTasks().observe(this, new Observer<List<Task>>() {
             @Override
             public void onChanged(@Nullable List<Task> tasks) {
+                Log.d("TAG main activity", "onChanged: is triggered ");
                 if (tasks!= null) {
                     adapter.updateTasks(tasks);
                     showTasks();
@@ -114,24 +122,22 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
                 allProjects = projects;
             }
         });
-
-        handleSortingPreference("All_tasks");
-
-
         findViewById(R.id.fab_add_task).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showAddTaskDialog();
             }
         });
+
+
     }
 
     /**
      * Call the ViewModel method to update the sorting preference
      */
 
-    public void handleSortingPreference(String preference) {
-        MainViewModel.updateFilteredTasks(preference);
+    public void setSortingPreference(String preference) {
+         mMainViewModel.handleSortingPreference(preference);
     }
 
 
@@ -151,13 +157,13 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         int id = item.getItemId();
 
         if (id == R.id.filter_alphabetical) {
-            handleSortingPreference("Alphabetical");
+            setSortingPreference("Alphabetical");
         } else if (id == R.id.filter_alphabetical_inverted) {
-            handleSortingPreference("Alphabetical_Inverted");
+            setSortingPreference("Alphabetical_Inverted");
         } else if (id == R.id.filter_oldest_first) {
-            handleSortingPreference("Recent_first");
+            setSortingPreference("Recent_first");
         } else if (id == R.id.filter_recent_first) {
-            handleSortingPreference("Old_First");
+            setSortingPreference("Old_First");
         }
 
         return super.onOptionsItemSelected(item);
@@ -173,7 +179,6 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
     public void onDeleteTask(Task task) {
         mMainViewModel.delete(task);
         showTasks();
-
     }
 
     /**

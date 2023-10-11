@@ -19,7 +19,7 @@ import java.util.Comparator;
  * Model for the tasks of the application
  *
  */
-@Entity(tableName = "tasks_table",
+@Entity(tableName = "tasks",
         foreignKeys = @ForeignKey(entity = Project.class,
                                     parentColumns = "id",
                                     childColumns = "project_id"))
@@ -30,7 +30,7 @@ public class Task {
      * The unique identifier of the task
      */
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "task_id")
+    @ColumnInfo(name = "id")
     private long id;
 
 
@@ -46,7 +46,7 @@ public class Task {
     // Suppress warning because setName is called in constructor
     //@SuppressWarnings("NullableProblems")
     @NonNull
-    @ColumnInfo (name = "task_name")
+    @ColumnInfo (name = "name")
     private String name;
 
     /**
@@ -152,10 +152,10 @@ public class Task {
 
 
 
-// fonctions de tri à réimplémenter
+/* fonctions de tri à réimplémenter
     /**
      * Comparator to sort task from A to Z
-    */
+
     public static class TaskAZComparator implements Comparator<Task> {
         @Override
         public int compare(Task left, Task right) {
@@ -165,7 +165,7 @@ public class Task {
 
     /**
      * Comparator to sort task from Z to A
-    */
+
     public static class TaskZAComparator implements Comparator<Task> {
         @Override
         public int compare(Task left, Task right) {
@@ -175,7 +175,7 @@ public class Task {
 
     /**
      * Comparator to sort task from last created to first created
-    */
+
     public static class TaskRecentComparator implements Comparator<Task> {
         @Override
         public int compare(Task left, Task right) {
@@ -185,11 +185,11 @@ public class Task {
 
     /**
      * Comparator to sort task from first created to last created
-    */
+
     public static class TaskOldComparator implements Comparator<Task> {
         @Override
         public int compare(Task left, Task right) {
             return (int) (left.creationTimestamp - right.creationTimestamp);
         }
-    }
+    }*/
 }

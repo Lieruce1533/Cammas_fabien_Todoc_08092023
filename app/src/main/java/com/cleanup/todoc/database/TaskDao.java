@@ -8,7 +8,6 @@ import androidx.room.Insert;
 import com.cleanup.todoc.model.Task;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
-import androidx.room.Transaction;
 
 import java.util.List;
 
@@ -16,7 +15,7 @@ import java.util.List;
 @Dao
 public interface TaskDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     void insert(Task task);
     @Delete(entity = Task.class)
     void deleteTaskInTable(Task task);
@@ -26,15 +25,15 @@ public interface TaskDao {
      *
      */
 
-    @Query("SELECT * FROM tasks_table")
+    @Query("SELECT * FROM tasks")
     LiveData<List<Task>> getAllTasks();
-    @Query("SELECT * FROM tasks_table ORDER BY creation_time_stamp DESC")
+    @Query("SELECT * FROM tasks ORDER BY creation_time_stamp DESC")
     LiveData<List<Task>> getAllTasksSortedByCreationTimestampDesc();
-    @Query("SELECT * FROM tasks_table ORDER BY creation_time_stamp ASC")
+    @Query("SELECT * FROM tasks ORDER BY creation_time_stamp ASC")
     LiveData<List<Task>> getAllTasksSortedByCreationTimestampAsc();
-    @Query("SELECT tasks_table.* FROM tasks_table INNER JOIN projects ON tasks_table.project_id = projects.id ORDER BY projects.name ASC")
+    @Query("SELECT * FROM tasks INNER JOIN projects ON tasks.project_id = projects.id ORDER BY projects.name ASC")
     LiveData<List<Task>> getTasksOrderedByProjectName();
-    @Query("SELECT tasks_table.* FROM tasks_table INNER JOIN projects ON tasks_table.project_id = projects.id ORDER BY projects.name DESC")
+    @Query("SELECT * FROM tasks INNER JOIN projects ON tasks.project_id = projects.id ORDER BY projects.name DESC")
     LiveData<List<Task>> getTasksOrderedByProjectNameDesc();
 
 

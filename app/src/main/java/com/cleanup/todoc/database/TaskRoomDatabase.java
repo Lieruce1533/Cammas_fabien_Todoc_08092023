@@ -12,7 +12,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import com.cleanup.todoc.model.Project;
 import com.cleanup.todoc.model.ProjectConverter;
 import com.cleanup.todoc.model.Task;
-import com.cleanup.todoc.model.ProjectWithTaskRelation;
+
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,7 +42,7 @@ public abstract class TaskRoomDatabase extends RoomDatabase {
                 if (INSTANCE == null) {
                     appContext = context.getApplicationContext();
                     INSTANCE = Room.databaseBuilder(appContext,
-                                    TaskRoomDatabase.class, "tasks_table")
+                                    TaskRoomDatabase.class, "todoc_database")
                             .addCallback(sRoomDatabaseCallback)
                             .build();
                     }

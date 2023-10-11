@@ -80,8 +80,7 @@ public class Project {
 
     /**
      * Setters created for room purposes they are needed for the Entity.
-     * they are annoted with @Ignore so they won't be used.
-     * @param id
+     *
      */
 
     public void setId(long id) {

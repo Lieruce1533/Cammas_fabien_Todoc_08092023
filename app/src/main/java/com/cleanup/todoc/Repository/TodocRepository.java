@@ -20,9 +20,7 @@ public class TodocRepository {
 
     // Singleton instance
     private static TodocRepository sInstance;
-    private static TaskDao mTaskDao;
-    private final ProjectDao mProjectDao;
-    private final TaskRoomDatabase mTaskRoomDatabase;
+    private final TaskDao mTaskDao;
     private final LiveData<List<Project>> mAllProjects;
 
 
@@ -31,10 +29,10 @@ public class TodocRepository {
 
     public TodocRepository(Application application) {
 
-        mTaskRoomDatabase = TaskRoomDatabase.getDatabase(application.getApplicationContext());
-        mTaskDao = mTaskRoomDatabase.mTaskDao();
-        mProjectDao = mTaskRoomDatabase.mProjectDao();
-        mAllProjects = mProjectDao.getAllLiveProjects();
+        TaskRoomDatabase taskRoomDatabase = TaskRoomDatabase.getDatabase(application.getApplicationContext());
+        mTaskDao = taskRoomDatabase.mTaskDao();
+        ProjectDao projectDao = taskRoomDatabase.mProjectDao();
+        mAllProjects = projectDao.getAllLiveProjects();
     }
 
     /**
@@ -70,70 +68,45 @@ public class TodocRepository {
         } );
     }
 //==============================================================================================
-    /**
-     * Live data's before preferences
-     *
-     */
-    public static LiveData<List<Task>> getAllTasks(){
-        Log.d("TAG access DAO", "getAllTasks: is solicited ");
-        List<Task> tasks = mTaskDao.getAllTasks().getValue();
-        Log.d("TAG access DAO", "Received tasks: " + tasks.size());
-        return mTaskDao.getAllTasks();
-    }
-    public static LiveData<List<Task>> getAllTasksSortedByCreationTimestampDesc(){
-        Log.d("TAG access DAO", "getAllTasksSortedByCreationTimestampDesc: is solicited ");
-        return mTaskDao.getAllTasksSortedByCreationTimestampDesc();
-    }
-    public static LiveData<List<Task>> getAllTasksSortedByCreationTimestampAsc(){
-        Log.d("TAG access DAO", "getAllTasksSortedByCreationTimestampAsc: is solicited ");
-        return mTaskDao.getAllTasksSortedByCreationTimestampAsc();
-    }
-    public static LiveData<List<Task>> getTasksOrderedByProjectName(){
-        Log.d("TAG access DAO", "getTasksOrderedByProjectName: is solicited ");
-        return mTaskDao.getTasksOrderedByProjectName();
-    }
-    public static LiveData<List<Task>> getTasksOrderedByProjectNameDesc(){
-        Log.d("TAG access DAO", "getTasksOrderedByProjectNameDesc: is solicited ");
-        return mTaskDao.getTasksOrderedByProjectNameDesc();
-    }
+
 //==============================================================================================
     /**
-     * Mutable live data who gets the value of one of the live data from the database
+     * Live data who gets the value of one of the live data from the database
      * @param preference
      *
      */
 
-    public static LiveData<List<Task>> getTaskToDisplay(String preference){
+    public LiveData<List<Task>> getTaskToDisplay(String preference){
 
-        MutableLiveData<List<Task>> taskListFiltered = new MutableLiveData<>();
-        List<Task> tasks;
+        LiveData<List<Task>> taskListFiltered;
+
         switch (preference){
             case "Alphabetical":
                 Log.d("TAG repository", "getTaskToDisplay: Alphabetical");
-                tasks = getTasksOrderedByProjectName().getValue();
-                taskListFiltered.setValue(tasks);
+
+                taskListFiltered = mTaskDao.getTasksOrderedByProjectName();
                 break;
 
             case "Alphabetical_Inverted":
                 Log.d("TAG repository", "getTaskToDisplay: Alphabetical_Inverted");
-                tasks = getTasksOrderedByProjectNameDesc().getValue();
-                taskListFiltered.setValue(tasks);
+
+                taskListFiltered= mTaskDao.getTasksOrderedByProjectNameDesc();
                 break;
 
             case "Old_First":
                 Log.d("TAG repository", "getTaskToDisplay: Old_First");
-                tasks = getAllTasksSortedByCreationTimestampDesc().getValue();
-                taskListFiltered.setValue(tasks);
+
+                taskListFiltered = mTaskDao.getAllTasksSortedByCreationTimestampDesc();
                 break;
             case "Recent_first":
                 Log.d("TAG repository", "getTaskToDisplay: Recent_first");
-                tasks = getAllTasksSortedByCreationTimestampAsc().getValue();
-                taskListFiltered.setValue(tasks);
+
+                taskListFiltered = mTaskDao.getAllTasksSortedByCreationTimestampAsc();
                 break;
             default:
                 Log.d("TAG repository", "getTaskToDisplay: default, all task");
-                tasks = getAllTasks().getValue();
-                taskListFiltered.setValue(tasks);
+
+                taskListFiltered = mTaskDao.getAllTasks();
                 break;
         }
         Log.d("TAG repository", "getTaskToDisplay: before return");
