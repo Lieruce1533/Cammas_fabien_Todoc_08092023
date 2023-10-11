@@ -1,6 +1,7 @@
 package com.cleanup.todoc.Repository;
 
 import android.app.Application;
+import android.util.Log;
 
 
 import androidx.lifecycle.LiveData;
@@ -68,11 +69,11 @@ public class TodocRepository {
             mTaskDao.deleteTaskInTable(task);
         } );
     }
-
+//==============================================================================================
     /**
      * Live data's before preferences
      *
-     */
+
     public LiveData<List<Task>> getAllTasks(){
         return mTaskDao.getAllTasks();
     }
@@ -87,8 +88,55 @@ public class TodocRepository {
     }
     public LiveData<List<Task>> getTasksOrderedByProjectNameDesc(){
         return mTaskDao.getTasksOrderedByProjectNameDesc();
-    }
+    }*/
 
+//==============================================================================================
+    /**
+     * Live data who gets the value of one of the live data from the database
+     * @param preference
+     *
+     */
+
+    public LiveData<List<Task>> getTaskToDisplay(String preference){
+
+        LiveData<List<Task>> taskListFiltered;
+
+        switch (preference){
+            case "Alphabetical":
+                Log.d("TAG repository", "getTaskToDisplay: Alphabetical");
+
+                taskListFiltered = mTaskDao.getTasksOrderedByProjectName();
+                break;
+
+            case "Alphabetical_Inverted":
+                Log.d("TAG repository", "getTaskToDisplay: Alphabetical_Inverted");
+
+                taskListFiltered= mTaskDao.getTasksOrderedByProjectNameDesc();
+                break;
+
+            case "Old_First":
+                Log.d("TAG repository", "getTaskToDisplay: Old_First");
+
+                taskListFiltered = mTaskDao.getAllTasksSortedByCreationTimestampDesc();
+                break;
+            case "Recent_first":
+                Log.d("TAG repository", "getTaskToDisplay: Recent_first");
+
+                taskListFiltered = mTaskDao.getAllTasksSortedByCreationTimestampAsc();
+                break;
+            default:
+                Log.d("TAG repository", "getTaskToDisplay: default, all task");
+                taskListFiltered = mTaskDao.getAllTasks();
+                List<Task> tasksDefault = mTaskDao.getAllTasks().getValue();
+
+                Log.d("TAG repository", "getTaskToDisplay: all task"+ tasksDefault.size());
+                break;
+        }
+        Log.d("TAG repository", "getTaskToDisplay: before return");
+        return taskListFiltered;
+
+
+    }
 
     /**
      * Projects methods
