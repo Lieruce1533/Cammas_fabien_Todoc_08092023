@@ -15,12 +15,7 @@ import java.util.List;
 
 public class MainViewModel extends AndroidViewModel {
 
-    private TodocRepository mTodocRepository;
-    private static  LiveData<List<Task>> mAllTasks;
-    private static  LiveData<List<Task>> mAllTasksSortedByTimeStampDesc;
-    private static  LiveData<List<Task>> mAllTasksSortedByTimeStampAsc;
-    private static  LiveData<List<Task>> mAllTasksSortedByNameAsc;
-    private static  LiveData<List<Task>> mAllTasksSortedByNameDesc;
+    private static TodocRepository mTodocRepository;
 
     // MediatorLiveData to aggregate the sorted tasks
     private static MediatorLiveData<List<Task>> aggregatedTasks = new MediatorLiveData<>();
@@ -41,11 +36,6 @@ public class MainViewModel extends AndroidViewModel {
     public MainViewModel(@NonNull Application application) {
         super(application);
         mTodocRepository = TodocRepository.getInstance(application);
-        mAllTasks = mTodocRepository.getAllTasks();
-        mAllTasksSortedByTimeStampDesc = mTodocRepository.getAllTasksSortedByCreationTimestampDesc();
-        mAllTasksSortedByTimeStampAsc = mTodocRepository.getAllTasksSortedByCreationTimestampAsc();
-        mAllTasksSortedByNameAsc = mTodocRepository.getTasksOrderedByProjectName();
-        mAllTasksSortedByNameDesc = mTodocRepository.getTasksOrderedByProjectNameDesc();
         mAllProjects = mTodocRepository.getAllProjects();
 
         // Set the initial source for aggregatedTasks (default sorting option)
@@ -55,19 +45,19 @@ public class MainViewModel extends AndroidViewModel {
     public static void setSortingPreference(SortingPreference sortingPreference) {
         switch (sortingPreference) {
             case CREATION_TIMESTAMP_DESC:
-                aggregatedTasks.addSource(mAllTasksSortedByTimeStampDesc, tasks -> aggregatedTasks.setValue(tasks));
+                aggregatedTasks.addSource(mTodocRepository.getAllTasksSortedByCreationTimestampDesc(), tasks -> aggregatedTasks.setValue(tasks));
                 break;
             case CREATION_TIMESTAMP_ASC:
-                aggregatedTasks.addSource(mAllTasksSortedByTimeStampAsc, tasks -> aggregatedTasks.setValue(tasks));
+                aggregatedTasks.addSource(mTodocRepository.getAllTasksSortedByCreationTimestampAsc(), tasks -> aggregatedTasks.setValue(tasks));
                 break;
             case NAME_ASC:
-                aggregatedTasks.addSource(mAllTasksSortedByNameAsc, tasks -> aggregatedTasks.setValue(tasks));
+                aggregatedTasks.addSource(mTodocRepository.getTasksOrderedByProjectName(), tasks -> aggregatedTasks.setValue(tasks));
                 break;
             case NAME_DESC:
-                aggregatedTasks.addSource(mAllTasksSortedByNameDesc, tasks -> aggregatedTasks.setValue(tasks));
+                aggregatedTasks.addSource(mTodocRepository.getTasksOrderedByProjectNameDesc(), tasks -> aggregatedTasks.setValue(tasks));
                 break;
             case ALL_TASKS:
-                aggregatedTasks.addSource(mAllTasks, tasks -> aggregatedTasks.setValue(tasks));
+                aggregatedTasks.addSource(mTodocRepository.getAllTasks(), tasks -> aggregatedTasks.setValue(tasks));
                 break;
         }
     }

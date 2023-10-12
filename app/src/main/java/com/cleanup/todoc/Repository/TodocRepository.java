@@ -20,18 +20,16 @@ public class TodocRepository {
     private static TodocRepository sInstance;
 
     private final TaskDao mTaskDao;
-    private final ProjectDao mProjectDao;
-    private final TaskRoomDatabase mTaskRoomDatabase;
     private final LiveData<List<Project>> mAllProjects;
 
 
 
     public TodocRepository(Application application) {
 
-        mTaskRoomDatabase = TaskRoomDatabase.getDatabase(application.getApplicationContext());
-        mTaskDao = mTaskRoomDatabase.mTaskDao();
-        mProjectDao = mTaskRoomDatabase.mProjectDao();
-        mAllProjects = mProjectDao.getAllLiveProjects();
+        TaskRoomDatabase taskRoomDatabase = TaskRoomDatabase.getDatabase(application.getApplicationContext());
+        mTaskDao = taskRoomDatabase.mTaskDao();
+        ProjectDao projectDao = taskRoomDatabase.mProjectDao();
+        mAllProjects = projectDao.getAllLiveProjects();
     }
 
     /**
