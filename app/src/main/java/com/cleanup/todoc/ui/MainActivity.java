@@ -1,9 +1,5 @@
 package com.cleanup.todoc.ui;
 
-import static com.cleanup.todoc.ui.MainViewModel.SortingPreference.CREATION_TIMESTAMP_ASC;
-import static com.cleanup.todoc.ui.MainViewModel.SortingPreference.CREATION_TIMESTAMP_DESC;
-import static com.cleanup.todoc.ui.MainViewModel.SortingPreference.NAME_ASC;
-import static com.cleanup.todoc.ui.MainViewModel.SortingPreference.NAME_DESC;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -27,10 +23,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.cleanup.todoc.R;
 import com.cleanup.todoc.model.Project;
 import com.cleanup.todoc.model.Task;
-import com.cleanup.todoc.model.ProjectWithTaskRelation;
 
 import java.util.ArrayList;
-import java.util.Collections;
+
 import java.util.Date;
 import java.util.List;
 
@@ -57,11 +52,6 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
      */
     private final TasksAdapter adapter = new TasksAdapter(tasks, this);
 
-    /**
-     * The sort method to be used to display tasks
-     */
-    @NonNull
-    private SortMethod sortMethod = SortMethod.NONE;
 
     /**
      * Dialog to create a new task
@@ -98,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
     private TextView lblNoTasks;
 
     private MainViewModel mMainViewModel;
-    private MainViewModel.SortingPreference mSortingPreference;
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -111,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         listTasks.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         listTasks.setAdapter(adapter);
         mMainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        setSortingPreference("All_Tasks");
         mMainViewModel.getAggregatedTasks().observe(this,tasks ->{
             this.tasks= tasks;
             adapter.updateTasks(tasks);
@@ -128,10 +119,11 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
                 showAddTaskDialog();
             }
         });
+
     }
 
-    private void handleSortingPreference(MainViewModel.SortingPreference preference) {
-        MainViewModel.setSortingPreference(preference); // Call the ViewModel method to update the sorting preference
+    public void setSortingPreference(String preference) {
+        mMainViewModel.handleSortingPreference(preference);
     }
 
     /**
@@ -150,13 +142,13 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         int id = item.getItemId();
 
         if (id == R.id.filter_alphabetical) {
-            handleSortingPreference(NAME_ASC);
+            setSortingPreference("Alphabetical");
         } else if (id == R.id.filter_alphabetical_inverted) {
-            handleSortingPreference(NAME_DESC);
+            setSortingPreference("Alphabetical_Inverted");
         } else if (id == R.id.filter_oldest_first) {
-            handleSortingPreference(CREATION_TIMESTAMP_ASC);
+            setSortingPreference("Recent_first");
         } else if (id == R.id.filter_recent_first) {
-            handleSortingPreference(CREATION_TIMESTAMP_DESC);
+            setSortingPreference("Old_First");
         }
 
         showTasks();
@@ -293,29 +285,4 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         }
     }
 
-    /**
-     * List of all possible sort methods for task
-     */
-    private enum SortMethod {
-        /**
-         * Sort alphabetical by name
-         */
-        ALPHABETICAL,
-        /**
-         * Inverted sort alphabetical by name
-         */
-        ALPHABETICAL_INVERTED,
-        /**
-         * Lastly created first
-         */
-        RECENT_FIRST,
-        /**
-         * First created first
-         */
-        OLD_FIRST,
-        /**
-         * No sort
-         */
-        NONE
-    }
 }
