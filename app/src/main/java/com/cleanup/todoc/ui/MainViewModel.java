@@ -18,8 +18,9 @@ import java.util.List;
 
 public class MainViewModel extends AndroidViewModel {
 
-    private final TodocRepository mTodocRepository;
 
+    private final TodocRepository mTodocRepository;
+  
     // MutableLiveData to aggregate the sorted tasks
     //----------------------------------------------------------------------------------------------
 
@@ -41,6 +42,7 @@ public class MainViewModel extends AndroidViewModel {
         mTodocRepository.setPreference(preference);
         Log.d("TAG in view-model", "handleSortingPreference: is triggered ");
         updateFilteredTasks();
+
     }
 
     public void updateFilteredTasks() {
@@ -67,12 +69,10 @@ public class MainViewModel extends AndroidViewModel {
     public LiveData<List<Task>> getAggregatedTasks() {
         return aggregatedTasks;
     }
-
+  
     LiveData<List<Project>> getAllProjects() { return mTodocRepository.getAllProjects();}
 
     public void insert(Task task) { mTodocRepository.insert(task);}
     public void delete(Task task) { mTodocRepository.delete(task);}
-
-
 
 }
