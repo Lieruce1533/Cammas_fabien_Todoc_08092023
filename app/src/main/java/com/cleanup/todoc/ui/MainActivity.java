@@ -1,9 +1,5 @@
 package com.cleanup.todoc.ui;
 
-import static com.cleanup.todoc.ui.MainViewModel.SortingPreference.CREATION_TIMESTAMP_ASC;
-import static com.cleanup.todoc.ui.MainViewModel.SortingPreference.CREATION_TIMESTAMP_DESC;
-import static com.cleanup.todoc.ui.MainViewModel.SortingPreference.NAME_ASC;
-import static com.cleanup.todoc.ui.MainViewModel.SortingPreference.NAME_DESC;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -105,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         listTasks.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         listTasks.setAdapter(adapter);
         mMainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
-
+        setSortingPreference("All_Tasks");
         mMainViewModel.getAggregatedTasks().observe(this,tasks ->{
             this.tasks= tasks;
             adapter.updateTasks(tasks);
