@@ -3,6 +3,7 @@ package com.cleanup.todoc.ui;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,8 +20,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewbinding.ViewBinding;
 
 import com.cleanup.todoc.R;
+import com.cleanup.todoc.databinding.ActivityMainBinding;
+import com.cleanup.todoc.databinding.DialogAddTaskBinding;
 import com.cleanup.todoc.model.Project;
 import com.cleanup.todoc.model.Task;
 
@@ -40,37 +44,30 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
      * List of all projects available in the application
      */
     private List<Project> allProjects;
-
     /**
      * List of all current tasks of the application
      */
     @NonNull
     private List<Task> tasks = new ArrayList<>();
-
     /**
      * The adapter which handles the list of tasks
      */
     private final TasksAdapter adapter = new TasksAdapter(tasks, this);
-
-
     /**
      * Dialog to create a new task
      */
     @Nullable
     public AlertDialog dialog = null;
-
     /**
      * EditText that allows user to set the name of a task
      */
     @Nullable
     private EditText dialogEditText = null;
-
     /**
      * Spinner that allows the user to associate a project to a task
      */
     @Nullable
     private Spinner dialogSpinner = null;
-
     /**
      * The RecyclerView which displays the list of tasks
      */
@@ -78,7 +75,6 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
     @SuppressWarnings("NullableProblems")
     @NonNull
     private RecyclerView listTasks;
-
     /**
      * The TextView displaying the empty state
      */
@@ -86,34 +82,52 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
     @SuppressWarnings("NullableProblems")
     @NonNull
     private TextView lblNoTasks;
-
     private MainViewModel mMainViewModel;
+    private ActivityMainBinding binding;
+    private DialogAddTaskBinding dialogBinding;
 
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
-        listTasks = findViewById(R.id.list_tasks);
-        lblNoTasks = findViewById(R.id.lbl_no_task);
-
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
+        listTasks = binding.listTasks;
+        lblNoTasks = binding.lblNoTask;
         listTasks.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         listTasks.setAdapter(adapter);
         mMainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
         setSortingPreference("All_Tasks");
+        /**
+         * getting the list of tasks
+         */
         mMainViewModel.getAggregatedTasks().observe(this,tasks ->{
             this.tasks= tasks;
             adapter.updateTasks(tasks);
-            showTasks();
         });
+        /**
+         * Updating the UI if no tasks
+         */
+        mMainViewModel.getIsNull().observe(this,isNull ->{
+            if(isNull){
+                lblNoTasks.setVisibility(View.VISIBLE);
+                listTasks.setVisibility(View.GONE);
+            }else{
+                lblNoTasks.setVisibility(View.GONE);
+                listTasks.setVisibility(View.VISIBLE);
+            }
+        });
+        /**
+         * getting the list of projects for the spinner
+         */
         mMainViewModel.getAllProjects().observe(this,projects -> {
             if (projects != null) {
                 allProjects = projects;
             }
-
         });
-        findViewById(R.id.fab_add_task).setOnClickListener(new View.OnClickListener() {
+        binding.fabAddTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showAddTaskDialog();
@@ -122,6 +136,10 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
 
     }
 
+    /**
+     * the method to pass the preference to the View-Model
+     * @param preference
+     */
     public void setSortingPreference(String preference) {
         mMainViewModel.handleSortingPreference(preference);
     }
@@ -149,25 +167,20 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
             setSortingPreference("Recent_first");
         } else if (id == R.id.filter_recent_first) {
             setSortingPreference("Old_First");
+        } else if (id == R.id.reset_filter) {
+            setSortingPreference("All_Tasks");
         }
-
-        showTasks();
-
         return super.onOptionsItemSelected(item);
     }
-
     /**
      * Deletes the specified task from the list of tasks
      * @param task The task to be deleted
      * Updates the list of tasks
      */
-
     @Override
     public void onDeleteTask(Task task) {
         mMainViewModel.delete(task);
-        showTasks();
     }
-
     /**
      * Called when the user clicks on the positive button of the Create Task Dialog.
      *
@@ -178,13 +191,11 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         if (dialogEditText != null && dialogSpinner != null) {
             // Get the name of the task
             String taskName = dialogEditText.getText().toString();
-
             // Get the selected project to be associated to the task
             Project taskProject = null;
             if (dialogSpinner.getSelectedItem() instanceof Project) {
                 taskProject = (Project) dialogSpinner.getSelectedItem();
             }
-
             // If a name has not been set
             if (taskName.trim().isEmpty()) {
                 dialogEditText.setError(getString(R.string.empty_task_name));
@@ -193,7 +204,6 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
             else if (taskProject != null) {
                 Task task = new Task(taskProject,taskName, new Date().getTime());
                 mMainViewModel.insert(task);
-                showTasks();
                 dialogInterface.dismiss();
             }
             // If name has been set, but project has not been set (this should never occur)
@@ -206,31 +216,16 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
             dialogInterface.dismiss();
         }
     }
-
     /**
      * Shows the Dialog for adding a Task
      */
     private void showAddTaskDialog() {
         final AlertDialog dialog = getAddTaskDialog();
         dialog.show();
-        dialogEditText = dialog.findViewById(R.id.txt_task_name);
-        dialogSpinner = dialog.findViewById(R.id.project_spinner);
+        dialogEditText = dialogBinding.txtTaskName;
+        dialogSpinner = dialogBinding.projectSpinner;
         populateDialogSpinner();
     }
-
-    /**
-     * Updates view of the list of tasks in the UI
-     */
-    private void showTasks() {
-        if (tasks.size() == 0) {
-            lblNoTasks.setVisibility(View.VISIBLE);
-            listTasks.setVisibility(View.GONE);
-        } else {
-            lblNoTasks.setVisibility(View.GONE);
-            listTasks.setVisibility(View.VISIBLE);
-        }
-    }
-
     /**
      * Returns the dialog allowing the user to create a new task.
      *
@@ -238,10 +233,10 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
      */
     @NonNull
     private AlertDialog getAddTaskDialog() {
+        dialogBinding = DialogAddTaskBinding.inflate(LayoutInflater.from(this));
         final AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this, R.style.Dialog);
-
+        alertBuilder.setView(dialogBinding.getRoot());
         alertBuilder.setTitle(R.string.add_task);
-        alertBuilder.setView(R.layout.dialog_add_task);
         alertBuilder.setPositiveButton(R.string.add, null);
         alertBuilder.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
@@ -251,18 +246,13 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
                 dialog = null;
             }
         });
-
         dialog = alertBuilder.create();
-
         // This instead of listener to positive button in order to avoid automatic dismiss
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-
             @Override
             public void onShow(DialogInterface dialogInterface) {
-
                 Button button = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
                 button.setOnClickListener(new View.OnClickListener() {
-
                     @Override
                     public void onClick(View view) {
                         onPositiveButtonClick(dialog);
@@ -270,7 +260,6 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
                 });
             }
         });
-
         return dialog;
     }
 

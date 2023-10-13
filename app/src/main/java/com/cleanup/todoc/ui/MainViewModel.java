@@ -2,6 +2,7 @@ package com.cleanup.todoc.ui;
 
 import android.app.Application;
 import android.util.Log;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -25,6 +26,7 @@ public class MainViewModel extends AndroidViewModel {
     //----------------------------------------------------------------------------------------------
 
     private final MutableLiveData<List<Task>> aggregatedTasks = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> isNull = new MutableLiveData<>();
 
     public MainViewModel(@NonNull Application application) {
         super(application);
@@ -44,6 +46,14 @@ public class MainViewModel extends AndroidViewModel {
         updateFilteredTasks();
 
     }
+    public void updateIsNull() {
+        List<Task> returnedTasks = aggregatedTasks.getValue();
+        if (returnedTasks.size() == 0) {
+            isNull.setValue(true);
+        }else{
+            isNull.setValue(false);
+        }
+    }
 
     public void updateFilteredTasks() {
         /*
@@ -56,7 +66,8 @@ public class MainViewModel extends AndroidViewModel {
             @Override
             public void onChanged(List<Task> tasks) {
                 Log.d("TAG viewModel", "Repository returned:  Mutable is updated");
-                aggregatedTasks.postValue(tasks);
+                aggregatedTasks.setValue(tasks);
+                updateIsNull();
             }
         });
     }
@@ -68,6 +79,9 @@ public class MainViewModel extends AndroidViewModel {
      */
     public LiveData<List<Task>> getAggregatedTasks() {
         return aggregatedTasks;
+    }
+    public LiveData<Boolean> getIsNull() {
+        return isNull;
     }
   
     LiveData<List<Project>> getAllProjects() { return mTodocRepository.getAllProjects();}
