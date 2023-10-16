@@ -3,6 +3,7 @@ package com.cleanup.todoc.ui;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,6 +18,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -99,14 +102,19 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         listTasks.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         listTasks.setAdapter(adapter);
         mMainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
-        setSortingPreference("All_Tasks");
+        //setSortingPreference("All_Tasks");
         /**
          * getting the list of tasks
          */
-        mMainViewModel.getAggregatedTasks().observe(this,tasks ->{
-            this.tasks= tasks;
-            adapter.updateTasks(tasks);
-        });
+        mMainViewModel.getAggregatedTasks().observe(this,new Observer<List<Task>>() {
+                    @Override
+                    public void onChanged(List<Task> tasks) {
+                        Log.d("TAG in Main Activity", "on change: is triggered ");
+                        adapter.updateTasks(tasks);
+                        mMainViewModel.updateIsNull();
+                    }
+                });
+
         /**
          * Updating the UI if no tasks
          */

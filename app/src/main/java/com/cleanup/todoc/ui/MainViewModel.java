@@ -22,65 +22,49 @@ public class MainViewModel extends AndroidViewModel {
 
     private final TodocRepository mTodocRepository;
   
-    // MutableLiveData to aggregate the sorted tasks
-    //----------------------------------------------------------------------------------------------
-
-    private final MutableLiveData<List<Task>> aggregatedTasks = new MutableLiveData<>();
+    // MutableLiveData to display view of tasks in UI.
     private final MutableLiveData<Boolean> isNull = new MutableLiveData<>();
+    private LiveData<List<Task>> aggregatedTasks;
+
 
     public MainViewModel(@NonNull Application application) {
         super(application);
         mTodocRepository = TodocRepository.getInstance(application);
-
+        handleSortingPreference("all tasks");
     }
 
-    //-----Start of Logic-----------------------------------------------------------------------------------------
-
-    /**
+     /**
      * the new logic:
      * @return
      */
     public void handleSortingPreference(String preference) {
-        mTodocRepository.setPreference(preference);
+
         Log.d("TAG in view-model", "handleSortingPreference: is triggered ");
-        updateFilteredTasks();
+
+        aggregatedTasks = mTodocRepository.getTaskToDisplay(preference);
+        Log.d("TAG in view-model", "handleSortingPreference: mutable updated");
+
 
     }
     public void updateIsNull() {
         List<Task> returnedTasks = aggregatedTasks.getValue();
-        if (returnedTasks.size() == 0) {
+        if (returnedTasks != null && returnedTasks.size() == 0) {
             isNull.setValue(true);
         }else{
             isNull.setValue(false);
         }
     }
-
-    public void updateFilteredTasks() {
-        /*
-        List<Task> tasks = mTodocRepository.getTaskToDisplay().getValue();
-
-        Log.d("TAG viewModel", "Repository returned:  Mutable is updated");
-        aggregatedTasks.setValue(tasks);
-        */
-        mTodocRepository.getTaskToDisplay().observeForever(new Observer<List<Task>>() {
-            @Override
-            public void onChanged(List<Task> tasks) {
-                Log.d("TAG viewModel", "Repository returned:  Mutable is updated");
-                aggregatedTasks.setValue(tasks);
-                updateIsNull();
-            }
-        });
-    }
-    //-----End of Logic-----------------------------------------------------------------------------------------
-
     /**
      * the live data to be observe by the UI
      *
      */
     public LiveData<List<Task>> getAggregatedTasks() {
+        Log.d("TAG in view-model", "getAggregatedTasks: is triggered ");
         return aggregatedTasks;
+
     }
     public LiveData<Boolean> getIsNull() {
+        Log.d("TAG in view-model", "getIsNull: is triggered ");
         return isNull;
     }
   

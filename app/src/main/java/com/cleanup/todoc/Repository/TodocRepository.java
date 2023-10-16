@@ -15,6 +15,7 @@ import com.cleanup.todoc.database.TaskRoomDatabase;
 import com.cleanup.todoc.model.Project;
 import com.cleanup.todoc.model.Task;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TodocRepository {
@@ -23,8 +24,14 @@ public class TodocRepository {
     private static TodocRepository sInstance;
     private final TaskDao mTaskDao;
     private final LiveData<List<Project>> mAllProjects;
-    private String preference;
-    private final MutableLiveData<List<Task>> taskListFiltered = new MutableLiveData<>();
+    private LiveData<List<Task>> tasksSortedAlphabetically;
+    private LiveData<List<Task>> tasksSortedAlphabeticallyInverted;
+    private LiveData<List<Task>> tasksSortedOldFirst;
+    private LiveData<List<Task>> tasksSortedRecentFirst;
+    private LiveData<List<Task>> allTasks;
+    //private String preference;
+
+
 
 
 
@@ -34,6 +41,13 @@ public class TodocRepository {
         mTaskDao = taskRoomDatabase.mTaskDao();
         ProjectDao projectDao = taskRoomDatabase.mProjectDao();
         mAllProjects = projectDao.getAllLiveProjects();
+
+        tasksSortedAlphabetically = mTaskDao.getTasksOrderedByProjectName();
+        tasksSortedAlphabeticallyInverted = mTaskDao.getTasksOrderedByProjectNameDesc();
+        tasksSortedOldFirst = mTaskDao.getAllTasksSortedByCreationTimestampDesc();
+        tasksSortedRecentFirst = mTaskDao.getAllTasksSortedByCreationTimestampAsc();
+        allTasks = mTaskDao.getAllTasks();
+
 
     }
 
@@ -78,79 +92,67 @@ public class TodocRepository {
      *
      */
 
-    public void setPreference(String preference){
-        this.preference= preference;
-    }
 
-    public LiveData<List<Task>> getTaskToDisplay(){
+    public LiveData<List<Task>> getTaskToDisplay(String preference) {
 
-        switch (preference){
+        switch (preference) {
             case "Alphabetical":
-                Log.d("TAG repository", "getTaskToDisplay: Alphabetical");
-                mTaskDao.getTasksOrderedByProjectName().observeForever(new Observer<List<Task>>() {
-                    @Override
-                    public void onChanged(List<Task> tasks) {
-                        taskListFiltered.setValue(tasks);
-                    }
-                });
-
-                break;
+                Log.d("TAG repository", "getTaskToDisplay: alphabetical ");
+                return tasksSortedAlphabetically;
 
             case "Alphabetical_Inverted":
-                Log.d("TAG repository", "getTaskToDisplay: Alphabetical_Inverted");
-                mTaskDao.getTasksOrderedByProjectNameDesc().observeForever(new Observer<List<Task>>() {
-                    @Override
-                    public void onChanged(List<Task> tasks) {
-                        taskListFiltered.setValue(tasks);
-                    }
-                });
-
-
-                break;
+                Log.d("TAG repository", "getTaskToDisplay: alphabetical inverted ");
+                return tasksSortedAlphabeticallyInverted;
 
             case "Old_First":
-                Log.d("TAG repository", "getTaskToDisplay: Old_First");
-                mTaskDao.getAllTasksSortedByCreationTimestampDesc().observeForever(new Observer<List<Task>>() {
-                    @Override
-                    public void onChanged(List<Task> tasks) {
-                        taskListFiltered.setValue(tasks);
-                    }
-                });
+                Log.d("TAG repository", "getTaskToDisplay: old first ");
+                return tasksSortedOldFirst;
 
-                break;
             case "Recent_first":
-                Log.d("TAG repository", "getTaskToDisplay: Recent_first");
-                mTaskDao.getAllTasksSortedByCreationTimestampAsc().observeForever(new Observer<List<Task>>() {
-                    @Override
-                    public void onChanged(List<Task> tasks) {
-                        taskListFiltered.setValue(tasks);
-                    }
-                });
-                break;
-            default:
-                Log.d("TAG repository", "getTaskToDisplay: default, all task");
-                mTaskDao.getAllTasks().observeForever(new Observer<List<Task>>() {
-                    @Override
-                    public void onChanged(List<Task> tasks) {
-                        taskListFiltered.setValue(tasks);
-                    }
-                });
-                break;
-        }
-        Log.d("TAG repository", "getTaskToDisplay: before return");
-        return taskListFiltered;
+                Log.d("TAG repository", "getTaskToDisplay: recent first");
+                return tasksSortedRecentFirst;
 
+            default:
+                Log.d("TAG repository", "getTaskToDisplay: All tasks ");
+                return allTasks;
+        }
 
     }
+
+
+    /*
+    public LiveData<List<Task>> getTaskToDisplay( String preference){
+
+
+        if (preference.equals("Alphabetical")){
+            Log.d("TAG repository", "getTaskToDisplay: alphabetical ");
+            return tasksSortedAlphabetically;
+        }else if (preference.equals("Alphabetical_Inverted")){
+            Log.d("TAG repository", "getTaskToDisplay: alphabetical inverted ");
+            return tasksSortedAlphabeticallyInverted;
+        }else if (preference.equals("Old_First")){
+            Log.d("TAG repository", "getTaskToDisplay: old first ");
+            return tasksSortedOldFirst;
+        }else if (preference.equals("Recent_first")){
+            Log.d("TAG repository", "getTaskToDisplay: recent first");
+            return tasksSortedRecentFirst;
+        } else{
+            Log.d("TAG repository", "getTaskToDisplay: All tasks ");
+            return mTaskDao.getAllTasks();
+        }
+    }*/
+
+
 
     /**
      * Projects methods
      * @return
      */
-    public LiveData<List<Project>> getAllProjects() {
+    public LiveData<List<Project>> getAllProjects(){
         return mAllProjects;
     }
 
-    }
+
+}
 
 
