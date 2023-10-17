@@ -27,10 +27,11 @@ public class MainViewModel extends AndroidViewModel {
     private LiveData<List<Task>> aggregatedTasks;
 
 
+
     public MainViewModel(@NonNull Application application) {
         super(application);
         mTodocRepository = TodocRepository.getInstance(application);
-        handleSortingPreference("all tasks");
+
     }
 
      /**
@@ -41,7 +42,8 @@ public class MainViewModel extends AndroidViewModel {
 
         Log.d("TAG in view-model", "handleSortingPreference: is triggered ");
 
-        aggregatedTasks = mTodocRepository.getTaskToDisplay(preference);
+        mTodocRepository.onSortingTypeChanged(preference);
+
         Log.d("TAG in view-model", "handleSortingPreference: mutable updated");
 
 
@@ -59,7 +61,8 @@ public class MainViewModel extends AndroidViewModel {
      *
      */
     public LiveData<List<Task>> getAggregatedTasks() {
-        Log.d("TAG in view-model", "getAggregatedTasks: is triggered ");
+        aggregatedTasks = mTodocRepository.getTasksLiveData();
+        Log.d("TAG in view-model", "getSortedTasks: value is");
         return aggregatedTasks;
 
     }

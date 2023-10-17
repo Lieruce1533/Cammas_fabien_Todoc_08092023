@@ -18,12 +18,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewbinding.ViewBinding;
 
 import com.cleanup.todoc.R;
 import com.cleanup.todoc.databinding.ActivityMainBinding;
@@ -32,7 +30,6 @@ import com.cleanup.todoc.model.Project;
 import com.cleanup.todoc.model.Task;
 
 import java.util.ArrayList;
-
 import java.util.Date;
 import java.util.List;
 
@@ -51,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
      * List of all current tasks of the application
      */
     @NonNull
-    private List<Task> tasks = new ArrayList<>();
+    private final List<Task> tasks = new ArrayList<>();
     /**
      * The adapter which handles the list of tasks
      */
@@ -71,50 +68,32 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
      */
     @Nullable
     private Spinner dialogSpinner = null;
-    /**
-     * The RecyclerView which displays the list of tasks
-     */
-    // Suppress warning is safe because variable is initialized in onCreate
-    @SuppressWarnings("NullableProblems")
-    @NonNull
-    private RecyclerView listTasks;
-    /**
-     * The TextView displaying the empty state
-     */
-    // Suppress warning is safe because variable is initialized in onCreate
-    @SuppressWarnings("NullableProblems")
-    @NonNull
-    private TextView lblNoTasks;
     private MainViewModel mMainViewModel;
-    private ActivityMainBinding binding;
     private DialogAddTaskBinding dialogBinding;
 
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        com.cleanup.todoc.databinding.ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
-        listTasks = binding.listTasks;
-        lblNoTasks = binding.lblNoTask;
+        RecyclerView listTasks = binding.listTasks;
+        TextView lblNoTasks = binding.lblNoTask;
         listTasks.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         listTasks.setAdapter(adapter);
         mMainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
-        //setSortingPreference("All_Tasks");
         /**
          * getting the list of tasks
          */
         mMainViewModel.getAggregatedTasks().observe(this,new Observer<List<Task>>() {
                     @Override
                     public void onChanged(List<Task> tasks) {
-                        Log.d("TAG in Main Activity", "on change: is triggered ");
+                        Log.d("TAG in Main Activity", "on change: aggregated tasks value is  " + tasks.toString());
                         adapter.updateTasks(tasks);
                         mMainViewModel.updateIsNull();
                     }
                 });
-
         /**
          * Updating the UI if no tasks
          */
@@ -141,9 +120,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
                 showAddTaskDialog();
             }
         });
-
     }
-
     /**
      * the method to pass the preference to the View-Model
      * @param preference
@@ -151,7 +128,6 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
     public void setSortingPreference(String preference) {
         mMainViewModel.handleSortingPreference(preference);
     }
-
     /**
      * Sets the sorting preference
      * @param menu The options menu in which you place your items.

@@ -6,7 +6,7 @@ import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
+import androidx.lifecycle.Transformations;
 
 
 import com.cleanup.todoc.database.ProjectDao;
@@ -15,7 +15,7 @@ import com.cleanup.todoc.database.TaskRoomDatabase;
 import com.cleanup.todoc.model.Project;
 import com.cleanup.todoc.model.Task;
 
-import java.util.ArrayList;
+
 import java.util.List;
 
 public class TodocRepository {
@@ -24,15 +24,7 @@ public class TodocRepository {
     private static TodocRepository sInstance;
     private final TaskDao mTaskDao;
     private final LiveData<List<Project>> mAllProjects;
-    private LiveData<List<Task>> tasksSortedAlphabetically;
-    private LiveData<List<Task>> tasksSortedAlphabeticallyInverted;
-    private LiveData<List<Task>> tasksSortedOldFirst;
-    private LiveData<List<Task>> tasksSortedRecentFirst;
-    private LiveData<List<Task>> allTasks;
-    //private String preference;
-
-
-
+    private final MutableLiveData<String> sortingTypeMutableLiveData = new MutableLiveData<>("All tasks");
 
 
     public TodocRepository(Application application) {
@@ -41,14 +33,6 @@ public class TodocRepository {
         mTaskDao = taskRoomDatabase.mTaskDao();
         ProjectDao projectDao = taskRoomDatabase.mProjectDao();
         mAllProjects = projectDao.getAllLiveProjects();
-
-        tasksSortedAlphabetically = mTaskDao.getTasksOrderedByProjectName();
-        tasksSortedAlphabeticallyInverted = mTaskDao.getTasksOrderedByProjectNameDesc();
-        tasksSortedOldFirst = mTaskDao.getAllTasksSortedByCreationTimestampDesc();
-        tasksSortedRecentFirst = mTaskDao.getAllTasksSortedByCreationTimestampAsc();
-        allTasks = mTaskDao.getAllTasks();
-
-
     }
 
     /**
@@ -92,29 +76,56 @@ public class TodocRepository {
      *
      */
 
+    public void onSortingTypeChanged(String preference) {
+        sortingTypeMutableLiveData.setValue(preference);
+    }
+
+    public LiveData<List<Task>> getTasksLiveData() {
+        return Transformations.switchMap(sortingTypeMutableLiveData, preference -> {
+            switch (preference) {
+                case "Alphabetical":
+                    Log.d("TAG repository", "getTaskToDisplay: alphabetical ");
+                    return mTaskDao.getTasksOrderedByProjectName();
+                case "Alphabetical_Inverted":
+                    Log.d("TAG repository", "getTaskToDisplay: alphabetical inverted ");
+                    return mTaskDao.getTasksOrderedByProjectNameDesc();
+                case "Old_First":
+                    Log.d("TAG repository", "getTaskToDisplay: old first ");
+                    return mTaskDao.getAllTasksSortedByCreationTimestampDesc();
+                case "Recent_first":
+                    Log.d("TAG repository", "getTaskToDisplay: recent first");
+                    return mTaskDao.getAllTasksSortedByCreationTimestampAsc();
+                default:
+                    Log.d("TAG repository", "getTaskToDisplay: All tasks ");
+                    return mTaskDao.getAllTasks();
+            }
+        });
+    }
+
+     /*
 
     public LiveData<List<Task>> getTaskToDisplay(String preference) {
 
         switch (preference) {
             case "Alphabetical":
                 Log.d("TAG repository", "getTaskToDisplay: alphabetical ");
-                return tasksSortedAlphabetically;
+                return mTaskDao.getTasksOrderedByProjectName();
 
             case "Alphabetical_Inverted":
                 Log.d("TAG repository", "getTaskToDisplay: alphabetical inverted ");
-                return tasksSortedAlphabeticallyInverted;
+                return mTaskDao.getTasksOrderedByProjectNameDesc();
 
             case "Old_First":
                 Log.d("TAG repository", "getTaskToDisplay: old first ");
-                return tasksSortedOldFirst;
+                return mTaskDao.getAllTasksSortedByCreationTimestampDesc();
 
             case "Recent_first":
                 Log.d("TAG repository", "getTaskToDisplay: recent first");
-                return tasksSortedRecentFirst;
+                return mTaskDao.getAllTasksSortedByCreationTimestampAsc();
 
             default:
                 Log.d("TAG repository", "getTaskToDisplay: All tasks ");
-                return allTasks;
+                return mTaskDao.getAllTasks();
         }
 
     }
