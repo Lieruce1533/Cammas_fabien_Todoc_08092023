@@ -1,23 +1,19 @@
 package com.cleanup.todoc.ui;
 
-import android.app.Application;
 import android.util.Log;
-import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModel;
 
-import com.cleanup.todoc.Repository.TodocRepository;
+import com.cleanup.todoc.repository.TodocRepository;
 import com.cleanup.todoc.model.Project;
 import com.cleanup.todoc.model.Task;
 
 import java.util.List;
 
-public class MainViewModel extends AndroidViewModel {
+public class MainViewModel extends ViewModel {
 
 
     private final TodocRepository mTodocRepository;
@@ -28,9 +24,9 @@ public class MainViewModel extends AndroidViewModel {
 
 
 
-    public MainViewModel(@NonNull Application application) {
-        super(application);
-        mTodocRepository = TodocRepository.getInstance(application);
+    public MainViewModel(@NonNull TodocRepository mtodocRepository) {
+
+        this.mTodocRepository = mtodocRepository;
 
     }
 

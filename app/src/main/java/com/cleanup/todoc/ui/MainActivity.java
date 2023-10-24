@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         TextView lblNoTasks = binding.lblNoTask;
         listTasks.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         listTasks.setAdapter(adapter);
-        mMainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        mMainViewModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(MainViewModel.class);
         /**
          * getting the list of tasks
          */
@@ -148,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         } else if (id == R.id.filter_alphabetical_inverted) {
             setSortingPreference("Alphabetical_Inverted");
         } else if (id == R.id.filter_oldest_first) {
-            setSortingPreference("Recent_first");
+            setSortingPreference("Recent_First");
         } else if (id == R.id.filter_recent_first) {
             setSortingPreference("Old_First");
         } else if (id == R.id.reset_filter) {
