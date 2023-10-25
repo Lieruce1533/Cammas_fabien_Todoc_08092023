@@ -54,14 +54,15 @@ public class TodocRepositoryTest {
         Task task = new Task(projet1, "aaa", 123);
 
         repository.insert(task);
+
         // Wait for LiveData operation to complete
         LiveData<List<Task>> tasksLiveData = repository.getTasksLiveData();
         LiveDataTestUtil.observeForTesting(tasksLiveData, tasks -> {
             // Assert that the inserted task is present in the list
             assertTrue(tasks.contains(task));
         });
-
         verify(taskDao).insert(task);
+
     }
 
 

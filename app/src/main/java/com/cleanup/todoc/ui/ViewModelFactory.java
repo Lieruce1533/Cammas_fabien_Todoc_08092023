@@ -19,7 +19,6 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
         Context context = MainApplication.getApplication().getApplicationContext();
         TaskRoomDatabase appDatabase = TaskRoomDatabase.getDatabase(context);
         mTodocRepository = new TodocRepository(appDatabase.mTaskDao(), appDatabase.mProjectDao());
-
     }
 
     public static ViewModelFactory getInstance() {

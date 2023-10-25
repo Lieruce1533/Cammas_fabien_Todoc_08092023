@@ -27,6 +27,7 @@ public class MainViewModel extends ViewModel {
     public MainViewModel(@NonNull TodocRepository mtodocRepository) {
 
         this.mTodocRepository = mtodocRepository;
+        aggregatedTasks = mTodocRepository.getTasksLiveData();
 
     }
 
@@ -36,11 +37,11 @@ public class MainViewModel extends ViewModel {
      */
     public void handleSortingPreference(String preference) {
 
-        Log.d("TAG in view-model", "handleSortingPreference: is triggered ");
+
 
         mTodocRepository.onSortingTypeChanged(preference);
 
-        Log.d("TAG in view-model", "handleSortingPreference: mutable updated");
+
 
 
     }
@@ -57,17 +58,18 @@ public class MainViewModel extends ViewModel {
      *
      */
     public LiveData<List<Task>> getAggregatedTasks() {
-        aggregatedTasks = mTodocRepository.getTasksLiveData();
-        Log.d("TAG in view-model", "getSortedTasks: value is");
+        if (aggregatedTasks == null) {
+            aggregatedTasks = mTodocRepository.getTasksLiveData();
+        }
         return aggregatedTasks;
 
     }
     public LiveData<Boolean> getIsNull() {
-        Log.d("TAG in view-model", "getIsNull: is triggered ");
+        //Log.d("TAG in view-model", "getIsNull: is triggered ");
         return isNull;
     }
   
-    LiveData<List<Project>> getAllProjects() { return mTodocRepository.getAllProjects();}
+    public LiveData<List<Project>> getAllProjects() { return mTodocRepository.getAllProjects();}
 
     public void insert(Task task) { mTodocRepository.insert(task);}
     public void delete(Task task) { mTodocRepository.delete(task);}
