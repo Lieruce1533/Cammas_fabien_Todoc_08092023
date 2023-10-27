@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.cleanup.todoc.di.Injection;
 import com.cleanup.todoc.repository.TodocRepository;
 import com.cleanup.todoc.database.TaskRoomDatabase;
 
@@ -17,8 +18,8 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
 
     private ViewModelFactory() {
         Context context = MainApplication.getApplication().getApplicationContext();
-        TaskRoomDatabase appDatabase = TaskRoomDatabase.getDatabase(context);
-        mTodocRepository = new TodocRepository(appDatabase.mTaskDao(), appDatabase.mProjectDao());
+        TaskRoomDatabase appDatabase = Injection.getsTaskRoomDatabase(context);
+        mTodocRepository = Injection.getsTodocRepository(appDatabase.mTaskDao(), appDatabase.mProjectDao());
     }
 
     public static ViewModelFactory getInstance() {
