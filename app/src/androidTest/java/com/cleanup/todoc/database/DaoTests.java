@@ -7,7 +7,7 @@ import androidx.room.Room;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.cleanup.todoc.LiveDataTestUtil;
+import com.cleanup.todoc.utils.LiveDataTestUtil;
 import com.cleanup.todoc.model.Project;
 import com.cleanup.todoc.model.Task;
 

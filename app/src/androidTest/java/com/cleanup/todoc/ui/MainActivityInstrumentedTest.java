@@ -1,35 +1,38 @@
-package com.cleanup.todoc;
+package com.cleanup.todoc.ui;
 
 
 
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
-
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-
-import com.cleanup.todoc.ui.MainActivity;
+import com.cleanup.todoc.utils.DeleteTaskViewAction;
+import com.cleanup.todoc.R;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.RootMatchers.isDialog;
 import static androidx.test.espresso.matcher.RootMatchers.isPlatformPopup;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withSpinnerText;
+
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static com.cleanup.todoc.RecyclerViewItemCountAssertion.withItemCount;
-import static com.cleanup.todoc.TestUtils.withRecyclerView;
-import static org.hamcrest.Matchers.is;
+import static com.cleanup.todoc.utils.RecyclerViewItemCountAssertion.withItemCount;
+import static com.cleanup.todoc.utils.TestUtils.withRecyclerView;
+
+
+import android.os.Handler;
+import android.os.Looper;
+
 
 import androidx.test.espresso.contrib.RecyclerViewActions;
+
+import java.util.concurrent.CountDownLatch;
 
 
 /**
@@ -40,13 +43,21 @@ import androidx.test.espresso.contrib.RecyclerViewActions;
 @RunWith(AndroidJUnit4.class)
 public class MainActivityInstrumentedTest {
     private static final int ITEM_COUNT = 1;
+    private final CountDownLatch latch1 = new CountDownLatch(1);
+    private final CountDownLatch latch2 = new CountDownLatch(1);
     @Rule
     public ActivityScenarioRule<MainActivity> rule = new ActivityScenarioRule<>(MainActivity.class);
 
-    @Test
-    public void addAndRemoveTask() {
+    private static void waitForItemRemoval(CountDownLatch latch) throws InterruptedException {
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.postDelayed(() -> latch.countDown(), 1000);
+        latch.await();
+    }
 
-        onView(withId(R.id.fab_add_task)).perform(click());
+    @Test
+    public void addAndRemoveTask() throws InterruptedException {
+
+        onView(ViewMatchers.withId(R.id.fab_add_task)).perform(click());
         onView(withId(R.id.txt_task_name)).perform(replaceText("Tâche example"));
         onView(withId(android.R.id.button1)).perform(click());
         // Check that lblTask is not displayed anymore
@@ -54,38 +65,31 @@ public class MainActivityInstrumentedTest {
 
         // Check that recyclerView is displayed
         onView(withId(R.id.list_tasks)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
-        //assertThat(listTasks.getVisibility(), equalTo(View.VISIBLE));
+
         // Check that it contains two elements
         onView(withId(R.id.list_tasks)).check(withItemCount(ITEM_COUNT+1));
 
-
         onView(withId(R.id.list_tasks)).perform(RecyclerViewActions.actionOnItemAtPosition(1, new DeleteTaskViewAction()));
         // Wait briefly to ensure item removal
-        try {
-            Thread.sleep(1000); // Adjust the sleep duration as needed
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        waitForItemRemoval(latch1);
         onView(withId(R.id.list_tasks)).check(withItemCount(ITEM_COUNT));
         onView(withId(R.id.list_tasks)).perform(RecyclerViewActions.actionOnItemAtPosition(0, new DeleteTaskViewAction()));
         // Wait briefly to ensure item removal
-        try {
-            Thread.sleep(1000); // Adjust the sleep duration as needed
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        waitForItemRemoval(latch2);
         onView(withId(R.id.list_tasks)).check(withItemCount(ITEM_COUNT-1));
         // Check that lblTask is displayed
         onView(withId(R.id.lbl_no_task)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
-        //assertThat(lblNoTask.getVisibility(), equalTo(View.VISIBLE));
         // Check that recyclerView is not displayed anymore
         onView(withId(R.id.list_tasks)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
-        //assertThat(listTasks.getVisibility(), equalTo(View.GONE));
+
     }
 
     @Test
     public void sortTasks() {
 
+        onView(ViewMatchers.withId(R.id.fab_add_task)).perform(click());
+        onView(withId(R.id.txt_task_name)).perform(replaceText("new Task"));
+        onView(withId(android.R.id.button1)).perform(click());
         onView(withId(R.id.fab_add_task)).perform(click());
         onView(withId(R.id.txt_task_name)).perform(replaceText("aaa Tâche example"));
         onView(withId(R.id.project_spinner)).perform(click());
