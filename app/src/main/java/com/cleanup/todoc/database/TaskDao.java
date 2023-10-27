@@ -24,8 +24,9 @@ public interface TaskDao {
     @Query("SELECT * FROM tasks")
     LiveData<List<Task>> getAllTasks();
 
+    /*
     @Query("SELECT * FROM tasks WHERE project_id = :projectId")
-    LiveData<List<Task>> getTasksByProject(int projectId);
+    LiveData<List<Task>> getTasksByProject(int projectId);*/
 
     /**
      * sorting Tasks here

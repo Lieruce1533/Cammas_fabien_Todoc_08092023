@@ -64,19 +64,19 @@ public class TodocRepository {
         return Transformations.switchMap(sortingTypeMutableLiveData, preference -> {
             switch (preference) {
                 case "Alphabetical":
-                    //Log.d("TAG repository", "getTaskToDisplay: alphabetical ");
+
                     return mTaskDao.getTasksOrderedByProjectName();
                 case "Alphabetical_Inverted":
-                    //Log.d("TAG repository", "getTaskToDisplay: alphabetical inverted ");
+
                     return mTaskDao.getTasksOrderedByProjectNameDesc();
-                case "Old_First":
-                    //Log.d("TAG repository", "getTaskToDisplay: old first ");
-                    return mTaskDao.getAllTasksSortedByCreationTimestampDesc();
                 case "Recent_First":
-                    //Log.d("TAG repository", "getTaskToDisplay: recent first");
+
+                    return mTaskDao.getAllTasksSortedByCreationTimestampDesc();
+                case "Old_First":
+
                     return mTaskDao.getAllTasksSortedByCreationTimestampAsc();
                 default:
-                    //Log.d("TAG repository", "getTaskToDisplay: All tasks ");
+
                     return mTaskDao.getAllTasks();
             }
         });

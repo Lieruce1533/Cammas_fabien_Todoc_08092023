@@ -148,9 +148,9 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         } else if (id == R.id.filter_alphabetical_inverted) {
             setSortingPreference("Alphabetical_Inverted");
         } else if (id == R.id.filter_oldest_first) {
-            setSortingPreference("Recent_First");
-        } else if (id == R.id.filter_recent_first) {
             setSortingPreference("Old_First");
+        } else if (id == R.id.filter_recent_first) {
+            setSortingPreference("Recent_First");
         } else if (id == R.id.reset_filter) {
             setSortingPreference("All_Tasks");
         }

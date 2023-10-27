@@ -1,17 +1,14 @@
 package com.cleanup.todoc.model;
 
-import androidx.room.ProvidedTypeConverter;
-import androidx.room.TypeConverter;
+import static com.cleanup.todoc.model.ProjectConverterTest.MOCK_PROJECTS;
 
-import java.util.Arrays;
+
 import java.util.List;
 
-@ProvidedTypeConverter
-public class ProjectConverter {
+public class MockProjectConverter extends ProjectConverter {
 
 
 
-    @TypeConverter
     public static long idFromProject(Project project) {
         if (project==null) {
             return(0);
@@ -19,7 +16,7 @@ public class ProjectConverter {
         return(project.getId());
     }
 
-    @TypeConverter
+
     public static Project projectFromId(long id) {
         List<Project> projects = getProjects();
         for (Project project : projects) {
@@ -30,6 +27,8 @@ public class ProjectConverter {
     }
 
     static List<Project> getProjects() {
-        return Arrays.asList(Project.getAllProjects());
+        return MOCK_PROJECTS;
     };
+
+
 }
