@@ -32,6 +32,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @RunWith(MockitoJUnitRunner.class)
 public class TodocRepositoryTest {
 
@@ -147,7 +148,7 @@ public class TodocRepositoryTest {
         when(taskDao.getAllTasksSortedByCreationTimestampDesc()).thenReturn(mockLiveData);
 
         // Trigger the method that updates the LiveData
-        repository.onSortingTypeChanged("Old_First");
+        repository.onSortingTypeChanged("Recent_First");
 
         // Now, you can observe the LiveData and assert its value
         LiveData<List<Task>> tasksLiveData = repository.getTasksLiveData();
@@ -173,7 +174,7 @@ public class TodocRepositoryTest {
         when(taskDao.getAllTasksSortedByCreationTimestampAsc()).thenReturn(mockLiveData);
 
         // Trigger the method that updates the LiveData
-        repository.onSortingTypeChanged("Recent_First");
+        repository.onSortingTypeChanged("Old_First");
 
         // Now, you can observe the LiveData and assert its value
         LiveData<List<Task>> tasksLiveData = repository.getTasksLiveData();
