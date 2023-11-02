@@ -24,16 +24,18 @@ public interface TaskDao {
     @Query("SELECT * FROM tasks")
     LiveData<List<Task>> getAllTasks();
 
+    /*
     @Query("SELECT * FROM tasks WHERE project_id = :projectId")
-    LiveData<List<Task>> getTasksByProject(int projectId);
+    LiveData<List<Task>> getTasksByProject(int projectId);*/
+
+    /**
+     * sorting Tasks here
+     */
+
     @Query("SELECT * FROM tasks ORDER BY creation_time_stamp DESC")
     LiveData<List<Task>> getAllTasksSortedByCreationTimestampDesc();
     @Query("SELECT * FROM tasks ORDER BY creation_time_stamp ASC")
     LiveData<List<Task>> getAllTasksSortedByCreationTimestampAsc();
-    @Query("SELECT * FROM tasks ORDER BY task_name ASC")
-    LiveData<List<Task>> getAllTasksSortedByNameAsc();
-    @Query("SELECT * FROM tasks ORDER BY task_name DESC")
-    LiveData<List<Task>> getAllTasksSortedByNameDesc();
 
     @Query("SELECT tasks.* FROM tasks INNER JOIN projects ON tasks.project_id = projects.id ORDER BY projects.name ASC")
     LiveData<List<Task>> getTasksOrderedByProjectName();
@@ -41,5 +43,5 @@ public interface TaskDao {
     LiveData<List<Task>> getTasksOrderedByProjectNameDesc();
 
 
-    //sorting Tasks possible here
+
 }

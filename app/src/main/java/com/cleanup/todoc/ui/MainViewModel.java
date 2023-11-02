@@ -1,76 +1,75 @@
 package com.cleanup.todoc.ui;
 
-import android.app.Application;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModel;
 
-import com.cleanup.todoc.Repository.TodocRepository;
+import com.cleanup.todoc.repository.TodocRepository;
 import com.cleanup.todoc.model.Project;
 import com.cleanup.todoc.model.Task;
 
 import java.util.List;
 
-public class MainViewModel extends AndroidViewModel {
+public class MainViewModel extends ViewModel {
 
 
     private final TodocRepository mTodocRepository;
   
-    // MutableLiveData to aggregate the sorted tasks
-    //----------------------------------------------------------------------------------------------
+    // MutableLiveData to display view of tasks in UI.
+    private final MutableLiveData<Boolean> isNull = new MutableLiveData<>();
+    private LiveData<List<Task>> aggregatedTasks;
 
-    private final MutableLiveData<List<Task>> aggregatedTasks = new MutableLiveData<>();
 
-    public MainViewModel(@NonNull Application application) {
-        super(application);
-        mTodocRepository = TodocRepository.getInstance(application);
+
+    public MainViewModel(@NonNull TodocRepository mtodocRepository) {
+
+        this.mTodocRepository = mtodocRepository;
+        aggregatedTasks = mTodocRepository.getTasksLiveData();
 
     }
 
-    //-----Start of Logic-----------------------------------------------------------------------------------------
-
-    /**
+     /**
      * the new logic:
      * @return
      */
     public void handleSortingPreference(String preference) {
-        mTodocRepository.setPreference(preference);
-        Log.d("TAG in view-model", "handleSortingPreference: is triggered ");
-        updateFilteredTasks();
+
+
+
+        mTodocRepository.onSortingTypeChanged(preference);
+
+
+
 
     }
-
-    public void updateFilteredTasks() {
-        /*
-        List<Task> tasks = mTodocRepository.getTaskToDisplay().getValue();
-
-        Log.d("TAG viewModel", "Repository returned:  Mutable is updated");
-        aggregatedTasks.setValue(tasks);
-        */
-        mTodocRepository.getTaskToDisplay().observeForever(new Observer<List<Task>>() {
-            @Override
-            public void onChanged(List<Task> tasks) {
-                Log.d("TAG viewModel", "Repository returned:  Mutable is updated");
-                aggregatedTasks.postValue(tasks);
-            }
-        });
+    public void updateIsNull() {
+        List<Task> returnedTasks = aggregatedTasks.getValue();
+        if (returnedTasks != null && returnedTasks.size() == 0) {
+            isNull.setValue(true);
+        }else{
+            isNull.setValue(false);
+        }
     }
-    //-----End of Logic-----------------------------------------------------------------------------------------
-
     /**
      * the live data to be observe by the UI
      *
      */
     public LiveData<List<Task>> getAggregatedTasks() {
+        if (aggregatedTasks == null) {
+            aggregatedTasks = mTodocRepository.getTasksLiveData();
+        }
         return aggregatedTasks;
+
+    }
+    public LiveData<Boolean> getIsNull() {
+        //Log.d("TAG in view-model", "getIsNull: is triggered ");
+        return isNull;
     }
   
-    LiveData<List<Project>> getAllProjects() { return mTodocRepository.getAllProjects();}
+    public LiveData<List<Project>> getAllProjects() { return mTodocRepository.getAllProjects();}
 
     public void insert(Task task) { mTodocRepository.insert(task);}
     public void delete(Task task) { mTodocRepository.delete(task);}

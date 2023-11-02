@@ -1,5 +1,8 @@
 package com.cleanup.todoc.database;
 
+
+
+
 import android.content.Context;
 
 import androidx.annotation.NonNull;
@@ -12,7 +15,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import com.cleanup.todoc.model.Project;
 import com.cleanup.todoc.model.ProjectConverter;
 import com.cleanup.todoc.model.Task;
-import com.cleanup.todoc.model.ProjectWithTaskRelation;
+
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,16 +36,16 @@ public abstract class TaskRoomDatabase extends RoomDatabase {
     public abstract TaskDao mTaskDao();
     public abstract ProjectDao mProjectDao();
     private static volatile TaskRoomDatabase INSTANCE;
-    private static Context appContext;
+    private static Context mContext;
     private static final int NUMBER_OF_THREADS = 4;
     public static final ExecutorService databaseWriteExecutor =
             Executors.newFixedThreadPool(NUMBER_OF_THREADS);
-    public static TaskRoomDatabase getDatabase(final Context context) {
+    public static TaskRoomDatabase getDatabase(@NonNull Context context) {
+        mContext = context.getApplicationContext();
         if (INSTANCE == null) {
             synchronized (TaskRoomDatabase.class) {
                 if (INSTANCE == null) {
-                    appContext = context.getApplicationContext();
-                    INSTANCE = Room.databaseBuilder(appContext,
+                    INSTANCE = Room.databaseBuilder(mContext,
                                     TaskRoomDatabase.class, "tasks")
                             .addCallback(sRoomDatabaseCallback)
                             .build();
@@ -62,7 +65,7 @@ public abstract class TaskRoomDatabase extends RoomDatabase {
             databaseWriteExecutor.execute(() -> {
                 // Populate the database in the background.
                 ProjectDao pDao = INSTANCE.mProjectDao();
-                List<Project> projects = readProjectsFromJson(appContext);
+                List<Project> projects = readProjectsFromJson(mContext);
                 pDao.insertAll(projects);
                 TaskDao tDao = INSTANCE.mTaskDao();
                 Task mtask = new Task();
