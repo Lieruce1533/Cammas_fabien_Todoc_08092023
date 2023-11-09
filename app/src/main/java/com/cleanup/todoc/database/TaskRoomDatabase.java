@@ -42,6 +42,7 @@ public abstract class TaskRoomDatabase extends RoomDatabase {
             Executors.newFixedThreadPool(NUMBER_OF_THREADS);
     public static TaskRoomDatabase getDatabase(@NonNull Context context) {
         mContext = context.getApplicationContext();
+
         if (INSTANCE == null) {
             synchronized (TaskRoomDatabase.class) {
                 if (INSTANCE == null) {
@@ -52,6 +53,8 @@ public abstract class TaskRoomDatabase extends RoomDatabase {
                     }
             }
         }
+        ProjectDao pDao = INSTANCE.mProjectDao();
+        ProjectConverter.initialize(pDao);
         return INSTANCE;
     }
 

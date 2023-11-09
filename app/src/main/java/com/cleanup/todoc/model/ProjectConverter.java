@@ -3,12 +3,19 @@ package com.cleanup.todoc.model;
 import androidx.room.ProvidedTypeConverter;
 import androidx.room.TypeConverter;
 
+import com.cleanup.todoc.database.ProjectDao;
+
 import java.util.Arrays;
 import java.util.List;
 
 @ProvidedTypeConverter
 public class ProjectConverter {
 
+    private static ProjectDao projectDaoInstance;
+
+    public static void initialize(ProjectDao projectDao) {
+        projectDaoInstance = projectDao;
+    }
 
 
     @TypeConverter
@@ -21,15 +28,11 @@ public class ProjectConverter {
 
     @TypeConverter
     public static Project projectFromId(long id) {
-        List<Project> projects = getProjects();
-        for (Project project : projects) {
-            if (project.getId() == id)
-                return project;
-        }
-        return null;
+
+        return projectDaoInstance.getProjectById(id);
     }
 
     static List<Project> getProjects() {
-        return Arrays.asList(Project.getAllProjects());
+        return projectDaoInstance.getAllProjects();
     };
 }

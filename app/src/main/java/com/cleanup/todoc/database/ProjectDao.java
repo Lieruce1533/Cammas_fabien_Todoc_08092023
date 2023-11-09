@@ -21,6 +21,4 @@ public interface ProjectDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertAll(List<Project> projects);
-
-    // Add other queries as needed
 }
