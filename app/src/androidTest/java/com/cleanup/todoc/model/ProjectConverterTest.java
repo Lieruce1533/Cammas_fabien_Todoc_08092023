@@ -7,7 +7,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import junit.framework.TestCase;
-import androidx.room.Room;
+
 
 import com.cleanup.todoc.database.TestTaskRoomDatabase;
 
@@ -35,14 +35,10 @@ public class ProjectConverterTest extends TestCase {
         MOCK_PROJECTS.add(new Project(2, "Project 2", 0xFFB4CDBA));
         MOCK_PROJECTS.add(new Project(3, "Project 3", 0xFFA3CED2));
 
-        // Create the test database and use your 'test_projects.json' to populate it
+        // Create the test database and use our 'test_projects.json' to populate it
         Context context = ApplicationProvider.getApplicationContext();
         testDatabase = TestTaskRoomDatabase.createTestDatabase(context);
         converter = new ProjectConverter();
-        /*testDatabase = Room
-                .inMemoryDatabaseBuilder(context, TestTaskRoomDatabase.class)
-                .build();*/
-
     }
     @After
     public void closeDb() {
@@ -53,7 +49,6 @@ public class ProjectConverterTest extends TestCase {
 
     @Test
     public void testIdFromProject() {
-        //ProjectConverter converter = new ProjectConverter();
         // Test conversion from Project to long
         long projectId = converter.idFromProject(MOCK_PROJECTS.get(0));
         assertEquals(1, projectId);
@@ -64,8 +59,6 @@ public class ProjectConverterTest extends TestCase {
 
     @Test
     public void testProjectFromId() {
-        //ProjectConverter converter = new ProjectConverter();
-
         // Test conversion from long to Project
         Project project = converter.projectFromId(2);
         assertNotNull(project);
