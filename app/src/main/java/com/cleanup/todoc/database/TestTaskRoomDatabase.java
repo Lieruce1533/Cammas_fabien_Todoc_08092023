@@ -1,0 +1,109 @@
+package com.cleanup.todoc.database;
+
+import android.content.Context;
+import androidx.annotation.NonNull;
+import androidx.room.Database;
+import androidx.room.Room;
+import androidx.room.RoomDatabase;
+import androidx.room.TypeConverters;
+import androidx.sqlite.db.SupportSQLiteDatabase;
+
+import com.cleanup.todoc.model.Project;
+import com.cleanup.todoc.model.ProjectConverter;
+import com.cleanup.todoc.model.Task;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+@Database(entities = {Task.class, Project.class}, version = 1, exportSchema = false)
+@TypeConverters(ProjectConverter.class)
+public abstract class TestTaskRoomDatabase extends RoomDatabase {
+
+    public abstract TaskDao mTaskDao();
+    public abstract ProjectDao mProjectDao();
+    private static volatile TestTaskRoomDatabase INSTANCE;
+    private static Context mContext;
+    private static final int NUMBER_OF_THREADS = 4;
+    public static final ExecutorService databaseWriteExecutor =
+            Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+    public static TestTaskRoomDatabase createTestDatabase(@NonNull Context context) {
+        mContext = context.getApplicationContext();
+
+        if (INSTANCE == null) {
+            synchronized (TestTaskRoomDatabase.class) {
+                if (INSTANCE == null) {
+                    INSTANCE = Room.databaseBuilder(mContext,
+                                    TestTaskRoomDatabase.class, "testcase")
+                            .addCallback(sRoomDatabaseCallback)
+                            .build();
+                }
+            }
+        }
+        ProjectDao pDao = INSTANCE.mProjectDao();
+        ProjectConverter.initialize(pDao);
+        return INSTANCE;
+    }
+
+    private static final RoomDatabase.Callback sRoomDatabaseCallback = new RoomDatabase.Callback() {
+        @Override
+        public void onCreate(@NonNull SupportSQLiteDatabase db) {
+            super.onCreate(db);
+
+            // If you want to keep data through app restarts,
+            // comment out the following block
+            databaseWriteExecutor.execute(() -> {
+                // Populate the database in the background.
+                ProjectDao pDao = INSTANCE.mProjectDao();
+                List<Project> projects = readProjectsFromJson(mContext);
+                pDao.insertAll(projects);
+                TaskDao tDao = INSTANCE.mTaskDao();
+                Task mtask = new Task();
+                mtask.setProject(pDao.getProjectById(1));
+                mtask.setName("new Task");
+                mtask.setCreationTimestamp(System.currentTimeMillis());
+                tDao.insert(mtask);
+
+            });
+        }
+    };
+
+    private static List<Project> readProjectsFromJson(Context context) {
+        List<Project> projects = new ArrayList<>();
+
+        try {
+            InputStream inputStream = context.getAssets().open("projectsForTests.json");
+            int size = inputStream.available();
+            byte[] buffer = new byte[size];
+            inputStream.read(buffer);
+            inputStream.close();
+
+            String json = new String(buffer, StandardCharsets.UTF_8);
+
+            // Parse the JSON array into Project objects
+            JSONArray jsonArray = new JSONArray(json);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                long id = jsonObject.getLong("id");
+                String name = jsonObject.getString("name");
+                int color = jsonObject.getInt("color");
+                projects.add(new Project(id, name, color));
+            }
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+        }
+
+        return projects;
+    }
+
+
+
+}

@@ -32,7 +32,4 @@ public class ProjectConverter {
         return projectDaoInstance.getProjectById(id);
     }
 
-    static List<Project> getProjects() {
-        return projectDaoInstance.getAllProjects();
-    };
 }
